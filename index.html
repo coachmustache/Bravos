@@ -4,11 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bravos Dashboard</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
   <style>
     :root {
       --bg: #111216;
@@ -26,7 +29,9 @@
       --shadow: 0 10px 30px rgba(0,0,0,.35);
       --radius: 22px;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -37,11 +42,13 @@
         linear-gradient(180deg, #12151d 0%, #0d1016 100%);
       min-height: 100vh;
     }
+
     .wrap {
       max-width: 1380px;
       margin: 0 auto;
       padding: 28px 18px 48px;
     }
+
     .hero {
       display: flex;
       justify-content: space-between;
@@ -50,17 +57,20 @@
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
+
     .title-block h1 {
       margin: 0;
       font-size: clamp(2rem, 5vw, 3.35rem);
       letter-spacing: .03em;
       font-weight: 800;
     }
+
     .title-block p {
       margin: 8px 0 0;
       color: var(--muted);
       font-size: .98rem;
     }
+
     .status-pill {
       border: 1px solid var(--line);
       background: rgba(255,255,255,.03);
@@ -73,6 +83,7 @@
       gap: 10px;
       box-shadow: var(--shadow);
     }
+
     .status-dot {
       width: 10px;
       height: 10px;
@@ -80,12 +91,14 @@
       background: var(--green);
       box-shadow: 0 0 12px rgba(54,211,153,.7);
     }
+
     .grid-top {
       display: grid;
       grid-template-columns: 1.3fr 1fr;
       gap: 18px;
       margin-bottom: 18px;
     }
+
     .card {
       background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
       border: 1px solid var(--line);
@@ -93,6 +106,7 @@
       box-shadow: var(--shadow);
       overflow: hidden;
     }
+
     .card-header {
       display: flex;
       align-items: center;
@@ -100,17 +114,20 @@
       gap: 10px;
       padding: 18px 20px 0;
     }
+
     .card-title {
       margin: 0;
       font-size: 1.05rem;
       font-weight: 700;
       letter-spacing: .02em;
     }
+
     .card-subtitle {
       color: var(--muted);
       font-size: .88rem;
       margin-top: 6px;
     }
+
     .pill {
       display: inline-flex;
       align-items: center;
@@ -123,226 +140,363 @@
       background: rgba(0,0,0,.14);
       font-size: .84rem;
     }
+
     .today-card-body { padding: 16px 20px 20px; }
+
     .today-games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 14px;
     }
+
     .game-tile {
-      padding: 16px;
+      padding: 18px;
       border: 1px solid var(--line-soft);
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(91,140,255,.12), rgba(91,140,255,.03));
-      min-height: 185px;
+      min-height: 210px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 14px;
+      transition: transform .15s ease, box-shadow .15s ease;
     }
-    .matchup {
-      display: flex;
-      gap: 14px;
-      align-items: center;
+
+    .game-tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0,0,0,.28);
     }
-    .logo-wrap {
-      width: 68px;
-      height: 68px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.045);
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(255,255,255,.06);
-      flex-shrink: 0;
-      overflow: hidden;
+
+    .game-tile.win {
+      border: 2px solid var(--green);
+      box-shadow: 0 0 14px rgba(54,211,153,.28);
     }
-    .logo-wrap img {
-      width: 52px;
-      height: 52px;
+
+    .game-tile.loss {
+      border: 2px solid var(--red);
+      box-shadow: 0 0 14px rgba(255,107,122,.24);
+    }
+
+    .game-tile.push {
+      border: 2px solid var(--orange);
+      box-shadow: 0 0 10px rgba(255,180,84,.18);
+    }
+
+    .game-tile.pending {
+      border: 1px solid var(--line-soft);
+    }
+
+    .opp-logo {
+      width: 48px;
+      height: 48px;
       object-fit: contain;
-    }
-    .matchup h2 {
-      margin: 0;
-      font-size: 1.45rem;
-      line-height: 1.05;
-    }
-    .matchup p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: .92rem;
-    }
-    .today-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .mini-stat {
-      border: 1px solid var(--line-soft);
-      border-radius: 16px;
-      padding: 12px 13px;
-      background: rgba(255,255,255,.025);
-      min-height: 74px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .mini-label {
-      color: var(--muted);
-      font-size: .74rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: 7px;
-    }
-    .mini-value {
-      font-size: 1.2rem;
-      font-weight: 800;
-      letter-spacing: -.02em;
-    }
-    .summary-card { padding: 0 0 18px; }
-    .metrics-grid {
-      padding: 16px 18px 0;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .metric {
-      background: rgba(255,255,255,.025);
-      border: 1px solid var(--line-soft);
-      border-radius: 18px;
-      padding: 14px 14px 16px;
-      min-height: 92px;
-    }
-    .metric-label {
-      color: var(--muted);
-      font-size: .78rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
       margin-bottom: 10px;
     }
-    .metric-value {
-      font-size: 1.55rem;
+
+    .opp-name {
+      font-size: 1.3rem;
       font-weight: 800;
-      letter-spacing: -.02em;
+      letter-spacing: .02em;
     }
-    .metric.small .metric-value { font-size: 1.18rem; }
-    .green { color: var(--green); }
-    .orange { color: var(--orange); }
-    .red { color: var(--red); }
-    .blue { color: var(--blue); }
-    .section-grid {
+
+    .game-date {
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: .92rem;
+    }
+
+    .units-big {
+      font-size: 1.9rem;
+      font-weight: 800;
+      line-height: 1;
+      margin: 14px 0 10px;
+    }
+
+    .game-meta {
       display: grid;
-      grid-template-columns: 1.35fr .95fr;
-      gap: 18px;
-      margin-bottom: 18px;
+      gap: 6px;
+      color: var(--muted);
+      font-size: .95rem;
     }
-    .chart-area { padding: 12px 18px 18px; }
-    .chart-wrap { height: 390px; padding: 12px 8px 6px; }
-    .stats-grid {
-      padding: 14px 18px 18px;
+
+    .result-badge {
+      margin-top: 12px;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+    }
+
+    .result-badge.win {
+      color: var(--green);
+      border-color: rgba(54,211,153,.35);
+      background: rgba(54,211,153,.10);
+    }
+
+    .result-badge.loss {
+      color: var(--red);
+      border-color: rgba(255,107,122,.35);
+      background: rgba(255,107,122,.10);
+    }
+
+    .result-badge.push {
+      color: var(--orange);
+      border-color: rgba(255,180,84,.35);
+      background: rgba(255,180,84,.10);
+    }
+
+    .result-badge.pending {
+      color: var(--muted);
+    }
+
+    .empty-panel {
+      padding: 16px 0 8px;
+      color: var(--muted);
+    }
+
+    .summary-card {
+      padding-bottom: 20px;
+    }
+
+    .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      padding: 18px 20px 0;
     }
-    .stat-card {
-      padding: 14px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.025);
+
+    .metric {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
       border: 1px solid var(--line-soft);
-      min-height: 94px;
+      border-radius: 18px;
+      padding: 16px;
+      min-height: 102px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    .stat-name {
-      color: var(--muted);
+
+    .metric-label {
       font-size: .78rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: 12px;
-    }
-    .stat-value {
-      font-weight: 800;
-      font-size: 1.5rem;
-    }
-    .stat-sub { color: var(--muted); font-size: .88rem; margin-top: 6px; }
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 18px;
-    }
-    table { width: 100%; border-collapse: collapse; }
-    .table-wrap { padding: 8px 18px 18px; overflow-x: auto; }
-    th, td {
-      text-align: left;
-      padding: 12px 10px;
-      border-bottom: 1px solid var(--line-soft);
-      font-size: .93rem;
-      white-space: nowrap;
-    }
-    th {
       color: var(--muted);
-      font-size: .78rem;
       text-transform: uppercase;
       letter-spacing: .08em;
       font-weight: 700;
     }
-    tr:last-child td { border-bottom: none; }
-    .result-chip {
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .metric-sub {
+      color: var(--muted);
+      font-size: .82rem;
+      margin-top: 8px;
+    }
+
+    .metric-value.green { color: var(--green); }
+    .metric-value.red { color: var(--red); }
+    .metric-value.orange { color: var(--orange); }
+    .metric-value.blue { color: var(--blue); }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1.4fr .9fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .chart-area {
+      padding: 14px 20px 20px;
+      height: 330px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      padding: 18px 20px 20px;
+    }
+
+    .stat-card {
+      border: 1px solid var(--line-soft);
+      border-radius: 18px;
+      padding: 16px;
+      min-height: 118px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .stat-name {
+      font-size: .75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.05;
+    }
+
+    .stat-sub {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1.45fr .95fr;
+      gap: 18px;
+    }
+
+    .table-wrap {
+      padding: 12px 20px 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 540px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      font-size: .95rem;
+    }
+
+    th {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .74rem;
+    }
+
+    tr:hover td {
+      background: rgba(255,255,255,.02);
+    }
+
+    .chip {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 62px;
+      min-width: 58px;
       padding: 6px 10px;
       border-radius: 999px;
       font-size: .78rem;
       font-weight: 700;
-      letter-spacing: .03em;
-      border: 1px solid transparent;
-    }
-    .chip-win { background: rgba(54,211,153,.12); color: var(--green); border-color: rgba(54,211,153,.26); }
-    .chip-loss { background: rgba(255,107,122,.12); color: var(--red); border-color: rgba(255,107,122,.26); }
-    .chip-push { background: rgba(255,180,84,.12); color: var(--orange); border-color: rgba(255,180,84,.26); }
-    .chip-ppd { background: rgba(255,255,255,.06); color: var(--muted); border-color: rgba(255,255,255,.08); }
-    .muted { color: var(--muted); }
-    .empty-panel {
-      border: 1px solid var(--line-soft);
-      border-radius: 18px;
-      padding: 18px;
-      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
       color: var(--muted);
     }
+
+    .chip.win {
+      color: var(--green);
+      background: rgba(54,211,153,.10);
+      border-color: rgba(54,211,153,.26);
+    }
+
+    .chip.loss {
+      color: var(--red);
+      background: rgba(255,107,122,.10);
+      border-color: rgba(255,107,122,.26);
+    }
+
+    .chip.push {
+      color: var(--orange);
+      background: rgba(255,180,84,.10);
+      border-color: rgba(255,180,84,.26);
+    }
+
+    .chip.ppd {
+      color: var(--muted);
+    }
+
     .footer-note {
+      margin-top: 18px;
       color: var(--muted);
-      margin-top: 16px;
-      text-align: center;
-      font-size: .86rem;
+      font-size: .88rem;
     }
-    .loading { opacity: .72; }
+
+    .loading {
+      opacity: .85;
+    }
+
     @media (max-width: 1100px) {
-      .grid-top, .section-grid, .bottom-grid { grid-template-columns: 1fr; }
+      .grid-top,
+      .section-grid,
+      .bottom-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
-    @media (max-width: 760px) {
-      .metrics-grid, .stats-grid { grid-template-columns: 1fr; }
-      .wrap { padding: 16px 12px 34px; }
-      .chart-wrap { height: 300px; }
+
+    @media (max-width: 720px) {
+      .wrap {
+        padding: 18px 14px 34px;
+      }
+
+      .metrics-grid,
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .today-games-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-area {
+        height: 280px;
+      }
+
+      .metric-value,
+      .stat-value {
+        font-size: 1.6rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap loading" id="app">
-    <div class="hero">
+    <section class="hero">
       <div class="title-block">
         <h1>Bravos Dashboard</h1>
-        <p>ATL betting tracker</p>
+        <p id="lastUpdated">Loading latest sheet data…</p>
       </div>
-      <div class="status-pill"><span class="status-dot"></span> <span id="lastUpdated">Loading latest sheet data...</span></div>
-    </div>
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        <span>2026 ATL Betting</span>
+      </div>
+    </section>
 
     <section class="grid-top">
       <div class="card">
         <div class="card-header">
           <div>
-            <h2 class="card-title">Today’s Card</h2>
-            <div class="card-subtitle" id="todaySubtitle">Checking today’s schedule...</div>
+            <h2 class="card-title">Today</h2>
+            <div class="card-subtitle" id="todaySubtitle">Checking today’s slate…</div>
           </div>
-          <div class="pill" id="todayCountPill">0 games</div>
+          <div class="pill" id="todayCountPill">Loading</div>
         </div>
         <div class="today-card-body" id="todayBody"></div>
       </div>
@@ -395,7 +549,14 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Date</th><th>Opp</th><th>Result</th><th>Units</th><th>Odds</th><th>Profit</th><th>Balance</th></tr>
+              <tr>
+                <th>Date</th>
+                <th>Opp</th>
+                <th>Result</th>
+                <th>Units</th>
+                <th>Odds</th>
+                <th>Profit</th>
+              </tr>
             </thead>
             <tbody id="recentTable"></tbody>
           </table>
@@ -411,105 +572,122 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Year</th><th>ROI</th></tr></thead>
+            <thead>
+              <tr><th>Year</th><th>ROI</th></tr>
+            </thead>
             <tbody id="roiTable"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <div class="footer-note">Using your published Google Sheets CSV feeds. Live sportsbook odds can be added later in a v2.</div>
+    <div class="footer-note">Using your published Google Sheets CSV feeds. Live sportsbook odds can be added later.</div>
   </div>
 
   <script>
     const SUMMARY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=338106424&single=true&output=csv';
     const DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=1101765880&single=true&output=csv';
-    const DASHBOARD_YEAR = 2026;
 
     const TEAM_LOGOS = {
-      ATL: 'https://a.espncdn.com/i/teamlogos/mlb/500/atl.png', ARI: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png', AZ: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png',
-      ATH: 'https://a.espncdn.com/i/teamlogos/mlb/500/oak.png', BAL: 'https://a.espncdn.com/i/teamlogos/mlb/500/bal.png', BOS: 'https://a.espncdn.com/i/teamlogos/mlb/500/bos.png',
-      CHC: 'https://a.espncdn.com/i/teamlogos/mlb/500/chc.png', CWS: 'https://a.espncdn.com/i/teamlogos/mlb/500/chw.png', CHW: 'https://a.espncdn.com/i/teamlogos/mlb/500/chw.png',
-      CIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/cin.png', CLE: 'https://a.espncdn.com/i/teamlogos/mlb/500/cle.png', COL: 'https://a.espncdn.com/i/teamlogos/mlb/500/col.png',
-      DET: 'https://a.espncdn.com/i/teamlogos/mlb/500/det.png', HOU: 'https://a.espncdn.com/i/teamlogos/mlb/500/hou.png', KC: 'https://a.espncdn.com/i/teamlogos/mlb/500/kc.png',
-      KCR: 'https://a.espncdn.com/i/teamlogos/mlb/500/kc.png', LAA: 'https://a.espncdn.com/i/teamlogos/mlb/500/laa.png', LAD: 'https://a.espncdn.com/i/teamlogos/mlb/500/lad.png',
-      MIA: 'https://a.espncdn.com/i/teamlogos/mlb/500/mia.png', MIL: 'https://a.espncdn.com/i/teamlogos/mlb/500/mil.png', MIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/min.png',
-      NYM: 'https://a.espncdn.com/i/teamlogos/mlb/500/nym.png', NYY: 'https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png', OAK: 'https://a.espncdn.com/i/teamlogos/mlb/500/oak.png',
-      PHI: 'https://a.espncdn.com/i/teamlogos/mlb/500/phi.png', PIT: 'https://a.espncdn.com/i/teamlogos/mlb/500/pit.png', SD: 'https://a.espncdn.com/i/teamlogos/mlb/500/sd.png',
-      SDP: 'https://a.espncdn.com/i/teamlogos/mlb/500/sd.png', SEA: 'https://a.espncdn.com/i/teamlogos/mlb/500/sea.png', SF: 'https://a.espncdn.com/i/teamlogos/mlb/500/sf.png',
-      STL: 'https://a.espncdn.com/i/teamlogos/mlb/500/stl.png', TB: 'https://a.espncdn.com/i/teamlogos/mlb/500/tb.png', TEX: 'https://a.espncdn.com/i/teamlogos/mlb/500/tex.png',
-      TOR: 'https://a.espncdn.com/i/teamlogos/mlb/500/tor.png', WSH: 'https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png'
+      ATL: 'https://a.espncdn.com/i/teamlogos/mlb/500/atl.png',
+      ARI: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png',
+      AZ: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png',
+      ATH: 'https://a.espncdn.com/i/teamlogos/mlb/500/oak.png',
+      BOS: 'https://a.espncdn.com/i/teamlogos/mlb/500/bos.png',
+      CHC: 'https://a.espncdn.com/i/teamlogos/mlb/500/chc.png',
+      CIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/cin.png',
+      CLE: 'https://a.espncdn.com/i/teamlogos/mlb/500/cle.png',
+      COL: 'https://a.espncdn.com/i/teamlogos/mlb/500/col.png',
+      DET: 'https://a.espncdn.com/i/teamlogos/mlb/500/det.png',
+      HOU: 'https://a.espncdn.com/i/teamlogos/mlb/500/hou.png',
+      KC: 'https://a.espncdn.com/i/teamlogos/mlb/500/kc.png',
+      LAA: 'https://a.espncdn.com/i/teamlogos/mlb/500/laa.png',
+      LAD: 'https://a.espncdn.com/i/teamlogos/mlb/500/lad.png',
+      MIA: 'https://a.espncdn.com/i/teamlogos/mlb/500/mia.png',
+      MIL: 'https://a.espncdn.com/i/teamlogos/mlb/500/mil.png',
+      MIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/min.png',
+      NYM: 'https://a.espncdn.com/i/teamlogos/mlb/500/nym.png',
+      NYY: 'https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png',
+      PHI: 'https://a.espncdn.com/i/teamlogos/mlb/500/phi.png',
+      PIT: 'https://a.espncdn.com/i/teamlogos/mlb/500/pit.png',
+      SD: 'https://a.espncdn.com/i/teamlogos/mlb/500/sd.png',
+      SEA: 'https://a.espncdn.com/i/teamlogos/mlb/500/sea.png',
+      SF: 'https://a.espncdn.com/i/teamlogos/mlb/500/sf.png',
+      STL: 'https://a.espncdn.com/i/teamlogos/mlb/500/stl.png',
+      TB: 'https://a.espncdn.com/i/teamlogos/mlb/500/tb.png',
+      TEX: 'https://a.espncdn.com/i/teamlogos/mlb/500/tex.png',
+      TOR: 'https://a.espncdn.com/i/teamlogos/mlb/500/tor.png',
+      WSH: 'https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png'
     };
 
-    function parseCSV(url, header = false) {
+    function parseCSV(url) {
       return new Promise((resolve, reject) => {
         Papa.parse(url, {
           download: true,
-          header,
           skipEmptyLines: false,
-          complete: (results) => resolve(results.data),
+          complete: (results) => resolve(results.data || []),
           error: reject
         });
       });
     }
 
-    function excelSerialToDate(serial) {
-      const n = Number(serial);
-      if (!Number.isFinite(n)) return null;
-      const utcDays = Math.floor(n - 25569);
-      const utcValue = utcDays * 86400;
-      const dateInfo = new Date(utcValue * 1000);
-      return new Date(dateInfo.getUTCFullYear(), dateInfo.getUTCMonth(), dateInfo.getUTCDate());
+    function safeText(v) {
+      return (v ?? '').toString().trim();
     }
 
-    function parseDate(value) {
-      if (value == null) return null;
-      if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
-      let v = String(value).trim();
-      if (!v) return null;
-      if (/^\d+(\.\d+)?$/.test(v)) return excelSerialToDate(v);
-      v = v.replace(/\u2013|\u2014/g, '-').replace(/\s+/g, ' ').replace(/,/g, '');
-      const md = v.match(/^([A-Za-z]{3,9})-?(\d{1,2})(?:-?(\d{2,4}))?$/);
-      if (md) {
-        const months = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
-        const m = months[md[1].slice(0,3).toLowerCase()];
-        const d = Number(md[2]);
-        let y = md[3] ? Number(md[3]) : DASHBOARD_YEAR;
-        if (y < 100) y += 2000;
-        if (m >= 0 && d && y) return new Date(y, m, d);
-      }
-      const fallback = new Date(v);
-      return Number.isNaN(fallback.getTime()) ? null : new Date(fallback.getFullYear(), fallback.getMonth(), fallback.getDate());
+    function getCell(grid, row, col) {
+      return (grid[row - 1] && grid[row - 1][col - 1]) || '';
     }
 
     function normalizeDate(date) {
-      return date ? new Date(date.getFullYear(), date.getMonth(), date.getDate()) : null;
+      const d = new Date(date);
+      if (Number.isNaN(d.getTime())) return null;
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    function parseSheetDate(value) {
+      const txt = safeText(value);
+      if (!txt) return null;
+
+      const direct = new Date(txt);
+      if (!Number.isNaN(direct.getTime())) {
+        return new Date(direct.getFullYear(), direct.getMonth(), direct.getDate());
+      }
+
+      const currentYear = new Date().getFullYear();
+      const alt = new Date(`${txt}-${currentYear}`);
+      if (!Number.isNaN(alt.getTime())) {
+        return new Date(alt.getFullYear(), alt.getMonth(), alt.getDate());
+      }
+
+      return null;
+    }
+
+    function parseNumeric(value) {
+      const txt = safeText(value)
+        .replace(/\$/g, '')
+        .replace(/,/g, '')
+        .replace(/u$/i, '')
+        .trim();
+
+      if (!txt || txt === '-' || txt === '—') return NaN;
+      const n = Number(txt);
+      return Number.isFinite(n) ? n : NaN;
     }
 
     function formatCurrency(value) {
-      const num = Number(value);
-      if (Number.isNaN(num)) return '—';
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+      if (!Number.isFinite(value)) return '—';
+      return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     }
 
-    function formatUnits(value, fallback = 'TBD') {
-      const num = Number(value);
-      return Number.isFinite(num) ? `${num.toFixed(2)}u` : fallback;
+    function formatUnits(value) {
+      if (!Number.isFinite(value)) return 'TBD';
+      return `${value.toFixed(2)}u`;
     }
 
-    function numeric(value) {
-      if (value == null) return NaN;
-      const cleaned = String(value).replace(/[$,%\s,]/g, '').replace(/[–—]/g, '-');
-      return cleaned === '' || cleaned === '-' ? NaN : Number(cleaned);
-    }
-
-    function asResult(value) {
-      const v = String(value || '').trim().toLowerCase();
-      if (v === 'win' || v === 'w') return 'Win';
-      if (v === 'loss' || v === 'l') return 'Loss';
-      if (v === 'push' || v === 'p') return 'Push';
-      if (v === 'ppd' || v === 'postponed') return 'PPD';
-      return '';
+    function dateLabel(date) {
+      if (!date) return '—';
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
     function isGraded(result) {
@@ -517,46 +695,9 @@
     }
 
     function getResultChip(result) {
-      const map = { Win: 'chip-win', Loss: 'chip-loss', Push: 'chip-push', PPD: 'chip-ppd' };
-      return `<span class="result-chip ${map[result] || 'chip-ppd'}">${result || '—'}</span>`;
-    }
-
-    function dateLabel(date) {
-      return date ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
-    }
-
-    function getCell(grid, rowIndex1, colIndex1) {
-      return grid?.[rowIndex1 - 1]?.[colIndex1 - 1] ?? '';
-    }
-
-    function safeText(value) {
-      return String(value ?? '').trim();
-    }
-
-    function parseDataGrid(grid) {
-      const headerRowIndex = grid.findIndex(row => row.some(cell => safeText(cell).toLowerCase() === 'game date'));
-      if (headerRowIndex === -1) throw new Error('Could not find header row in 2026 Data CSV.');
-      const headers = grid[headerRowIndex].map(h => safeText(h));
-      const rows = [];
-      for (let i = headerRowIndex + 1; i < grid.length; i++) {
-        const row = grid[i];
-        if (!row || !row.length) continue;
-        const obj = Object.fromEntries(headers.map((h, idx) => [h, row[idx] ?? '']));
-        const date = parseDate(obj['Game Date'] || obj['Date']);
-        if (!date) continue;
-        rows.push({
-          rowNumber: i + 1,
-          date,
-          opp: safeText(obj['Opponent']).toUpperCase(),
-          result: asResult(obj['Result']),
-          units: numeric(obj['Bravos'] || obj['Units']),
-          odds: safeText(obj['Odds']),
-          profit: numeric(obj['Profit']),
-          balance: numeric(obj['Balance']),
-          spread: safeText(obj['Spread'])
-        });
-      }
-      return rows.sort((a, b) => a.date - b.date || a.rowNumber - b.rowNumber);
+      const r = safeText(result);
+      const cls = r === 'Win' ? 'win' : r === 'Loss' ? 'loss' : r === 'Push' ? 'push' : r === 'PPD' ? 'ppd' : '';
+      return `<span class="chip ${cls}">${r || '—'}</span>`;
     }
 
     function parseSummaryGrid(grid) {
@@ -579,7 +720,43 @@
         if (/^year$/i.test(year)) continue;
         historicalROI.push({ year, roi });
       }
+
       return { topMetrics, historicalROI };
+    }
+
+    function parseDataGrid(grid) {
+      const rows = [];
+      for (let i = 1; i < grid.length; i++) {
+        const row = grid[i] || [];
+        const date = parseSheetDate(row[0]);
+        const opp = safeText(row[1]);
+        const result = safeText(row[2]);
+        const units = parseNumeric(row[3]);
+        const odds = safeText(row[5]);
+        const profit = parseNumeric(row[7 - 1]);  // H if zero-based 7? corrected below by fallback
+        const balance = parseNumeric(row[8 - 1]); // I if zero-based 8? corrected below by fallback
+
+        const profitFallback = parseNumeric(row[6]);   // actual H-like position from your screenshot may vary
+        const balanceFallback = parseNumeric(row[7]);  // actual I-like position from your screenshot may vary
+
+        rows.push({
+          rowNumber: i + 1,
+          date,
+          opp,
+          result,
+          units,
+          odds,
+          profit: Number.isFinite(profitFallback) ? profitFallback : profit,
+          balance: Number.isFinite(balanceFallback) ? balanceFallback : balance
+        });
+      }
+
+      return rows
+        .filter(r => r.date instanceof Date && !Number.isNaN(r.date.getTime()))
+        .sort((a, b) => {
+          const diff = a.date - b.date;
+          return diff !== 0 ? diff : a.rowNumber - b.rowNumber;
+        });
     }
 
     function computeStreaks(gradedRows) {
@@ -587,6 +764,7 @@
       let currentLength = 0;
       let longestWin = 0;
       let longestLoss = 0;
+
       for (const row of gradedRows) {
         if (!['Win', 'Loss'].includes(row.result)) continue;
         if (row.result === currentType) currentLength += 1;
@@ -597,6 +775,7 @@
         if (row.result === 'Win') longestWin = Math.max(longestWin, currentLength);
         if (row.result === 'Loss') longestLoss = Math.max(longestLoss, currentLength);
       }
+
       let tailType = '';
       let tailLength = 0;
       for (let i = gradedRows.length - 1; i >= 0; i--) {
@@ -606,7 +785,10 @@
         if (res === tailType) tailLength += 1;
         else break;
       }
+
       return {
+        currentType: tailType,
+        currentLength: tailLength,
         currentWin: tailType === 'Win' ? tailLength : 0,
         currentLoss: tailType === 'Loss' ? tailLength : 0,
         longestWin,
@@ -620,9 +802,11 @@
       const losses = slice.filter(r => r.result === 'Loss').length;
       const pushes = slice.filter(r => r.result === 'Push').length;
       const profit = slice.reduce((sum, r) => sum + (Number.isFinite(r.profit) ? r.profit : 0), 0);
+
       return {
-        title: `Last ${Math.min(n, slice.length) || n}`,
+        title: `Last ${n}`,
         record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`,
+        gamesInWindow: slice.length,
         profit
       };
     }
@@ -636,12 +820,14 @@
       const totalUnits = graded.reduce((sum, r) => sum + (Number.isFinite(r.units) ? r.units : 0), 0);
       const balances = graded.filter(r => Number.isFinite(r.balance));
       const currentBalance = balances.length ? balances[balances.length - 1].balance : NaN;
+
       let peak = Number.NEGATIVE_INFINITY;
       let drawdown = 0;
       for (const row of balances) {
         peak = Math.max(peak, row.balance);
         drawdown = Math.max(drawdown, peak - row.balance);
       }
+
       return {
         graded,
         record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`,
@@ -657,83 +843,161 @@
       };
     }
 
-    function renderTodayCard(todayRows, nextRows) {
+    function renderTodayCard(todayRows) {
       const subtitle = document.getElementById('todaySubtitle');
       const pill = document.getElementById('todayCountPill');
       const body = document.getElementById('todayBody');
-      pill.textContent = `${todayRows.length} ${todayRows.length === 1 ? 'game' : 'games'}`;
 
       if (!todayRows.length) {
-        const nextGame = nextRows[0];
-        subtitle.textContent = 'No row in the sheet matched today’s date.';
+        subtitle.textContent = 'No Braves wager card for today yet';
+        pill.textContent = 'No games today';
         body.innerHTML = `
           <div class="empty-panel">
             <div style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">No game today</div>
-            <div class="muted">No Braves game is listed for today in the 2026 Data sheet.</div>
-            <div style="margin-top:12px;" class="pill">${nextGame ? `Next up: ${dateLabel(nextGame.date)} vs ${nextGame.opp}` : 'No future games found'}</div>
-          </div>`;
+            <div>Check back when today’s slate is posted.</div>
+          </div>
+        `;
         return;
       }
 
-      subtitle.textContent = todayRows.length > 1 ? 'All games scheduled for today are shown below.' : 'Today’s Braves wager card is live.';
-      body.innerHTML = `<div class="today-games-grid">${todayRows.map((row, idx) => {
-        const logo = TEAM_LOGOS[row.opp] || TEAM_LOGOS.ATL;
-        const unitsLabel = Number.isFinite(row.units) ? `${row.units.toFixed(2)}u` : (todayRows.length > 1 && idx > 0 ? 'Pending' : 'TBD');
-        const oddsLabel = row.odds || 'TBD';
-        const status = row.result || 'Scheduled';
-        return `
-          <article class="game-tile">
-            <div class="matchup">
-              <div class="logo-wrap"><img src="${logo}" alt="${row.opp} logo" onerror="this.style.display='none'"></div>
-              <div>
-                <h2>ATL vs ${row.opp || '—'}</h2>
-                <p>${dateLabel(row.date)}${todayRows.length > 1 ? ` · Game ${idx + 1}` : ''}</p>
+      subtitle.textContent = `${todayRows.length} game${todayRows.length === 1 ? '' : 's'} today`;
+      pill.textContent = `Today’s slate`;
+
+      body.innerHTML = `
+        <div class="today-games-grid">
+          ${todayRows.map(r => {
+            let cls = 'pending';
+            if (r.result === 'Win') cls = 'win';
+            if (r.result === 'Loss') cls = 'loss';
+            if (r.result === 'Push') cls = 'push';
+
+            const badgeCls = cls;
+            const badgeText = r.result || 'Pending';
+            const logo = TEAM_LOGOS[r.opp] || '';
+
+            return `
+              <div class="game-tile ${cls}">
+                <div>
+                  ${logo ? `<img class="opp-logo" src="${logo}" alt="${r.opp} logo" onerror="this.style.display='none'">` : ''}
+                  <div class="opp-name">${r.opp || 'TBD'}</div>
+                  <div class="game-date">${dateLabel(r.date)}</div>
+                </div>
+
+                <div>
+                  <div class="units-big">${formatUnits(r.units)}</div>
+                  <div class="game-meta">
+                    <div>Odds: ${r.odds || 'TBD'}</div>
+                  </div>
+                  <div class="result-badge ${badgeCls}">${badgeText}</div>
+                </div>
               </div>
-            </div>
-            <div class="today-meta">
-              <div class="mini-stat"><div class="mini-label">Units</div><div class="mini-value">${unitsLabel}</div></div>
-              <div class="mini-stat"><div class="mini-label">Odds</div><div class="mini-value">${oddsLabel}</div></div>
-              <div class="mini-stat"><div class="mini-label">Status</div><div class="mini-value" style="font-size:1rem;">${status}</div></div>
-              <div class="mini-stat"><div class="mini-label">Profit</div><div class="mini-value" style="font-size:1rem;">${Number.isFinite(row.profit) ? `${row.profit >= 0 ? '+' : ''}${row.profit.toFixed(2)}u` : '—'}</div></div>
-            </div>
-          </article>`;
-      }).join('')}</div>`;
+            `;
+          }).join('')}
+        </div>
+      `;
     }
 
     function renderSummary(summary, computed) {
-      const roiNumeric = numeric(summary.topMetrics.roi);
-      const totalProfitNumeric = numeric(summary.topMetrics.totalProfit);
-      const drawdownNumeric = numeric(summary.topMetrics.drawdown);
+      const drawdownNumeric = parseNumeric(summary.topMetrics.drawdown);
+
       const metrics = [
-        { label: 'Record', value: computed.record, cls: 'small' },
-        { label: 'Total Profit', value: summary.topMetrics.totalProfit || formatCurrency(computed.totalProfit), cls: totalProfitNumeric > 0 ? 'green' : totalProfitNumeric < 0 ? 'red' : '' },
-        { label: 'ROI', value: summary.topMetrics.roi || '—', cls: roiNumeric > 0 ? 'blue' : roiNumeric < 0 ? 'orange' : '' },
-        { label: 'Bravo Size', value: summary.topMetrics.bravoSize || '—' },
-        { label: 'Total Stake', value: summary.topMetrics.totalStake || (Number.isFinite(computed.totalUnits) ? computed.totalUnits.toFixed(2) : '—') },
-        { label: 'Bankroll', value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—' },
-        { label: 'BR Start', value: summary.topMetrics.brStart || '—' },
-        { label: 'Peak', value: summary.topMetrics.peak || (Number.isFinite(computed.peak) ? formatCurrency(computed.peak) : '—') },
-        { label: 'Drawdown', value: summary.topMetrics.drawdown || (Number.isFinite(computed.drawdown) ? formatCurrency(computed.drawdown) : '—'), cls: drawdownNumeric > 0 ? 'orange' : '' },
-        { label: 'ROB', value: summary.topMetrics.rob || '—' }
+        {
+          label: 'YTD Record',
+          value: computed.record || '0-0',
+          sub: 'Wins-Losses-Pushes',
+          cls: 'blue'
+        },
+        {
+          label: 'Total Profit',
+          value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'),
+          sub: 'Season to date',
+          cls: Number.isFinite(computed.totalProfit) ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '') : ''
+        },
+        {
+          label: 'ROI',
+          value: summary.topMetrics.roi || '—',
+          sub: 'Pulled from Summary',
+          cls: 'blue'
+        },
+        {
+          label: 'Bankroll',
+          value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—',
+          sub: `Peak ${Number.isFinite(computed.peak) ? formatCurrency(computed.peak) : '—'} • DD ${formatCurrency(computed.drawdown)}`,
+          cls: 'orange'
+        },
+        {
+          label: 'Bravo Size',
+          value: summary.topMetrics.bravoSize || '—',
+          sub: '',
+          cls: ''
+        },
+        {
+          label: 'Total Stake',
+          value: summary.topMetrics.totalStake || '—',
+          sub: '',
+          cls: ''
+        },
+        {
+          label: 'BR Start',
+          value: summary.topMetrics.brStart || '—',
+          sub: '',
+          cls: ''
+        },
+        {
+          label: 'ROB',
+          value: summary.topMetrics.rob || '—',
+          sub: '',
+          cls: ''
+        }
       ];
+
       document.getElementById('summaryMetrics').innerHTML = metrics.map(m => `
-        <div class="metric ${m.cls === 'small' ? 'small' : ''}">
+        <div class="metric">
           <div class="metric-label">${m.label}</div>
-          <div class="metric-value ${['green','orange','red','blue'].includes(m.cls) ? m.cls : ''}">${m.value}</div>
+          <div class="metric-value ${m.cls}">${m.value}</div>
+          <div class="metric-sub">${m.sub || '&nbsp;'}</div>
         </div>
       `).join('');
     }
 
     function renderMomentum(computed) {
+      const currentStreakText = computed.streaks.currentType
+        ? `${computed.streaks.currentType} ${computed.streaks.currentLength}`
+        : 'No streak';
+
       const cards = [
-        { name: 'Current Win Streak', value: computed.streaks.currentWin || 0, sub: computed.streaks.currentWin ? 'Wins in a row' : 'No active win streak' },
-        { name: 'Longest Win Streak', value: computed.streaks.longestWin || 0, sub: 'Season best' },
-        { name: 'Current Loss Streak', value: computed.streaks.currentLoss || 0, sub: computed.streaks.currentLoss ? 'Losses in a row' : 'No active losing streak' },
-        { name: 'Longest Loss Streak', value: computed.streaks.longestLoss || 0, sub: 'Season worst' },
-        { name: computed.last5.title, value: computed.last5.record, sub: `${computed.last5.profit >= 0 ? '+' : ''}${computed.last5.profit.toFixed(2)}u` },
-        { name: computed.last10.title, value: computed.last10.record, sub: `${computed.last10.profit >= 0 ? '+' : ''}${computed.last10.profit.toFixed(2)}u` },
-        { name: computed.last20.title, value: computed.last20.record, sub: `${computed.last20.profit >= 0 ? '+' : ''}${computed.last20.profit.toFixed(2)}u` }
+        {
+          name: 'Current Streak',
+          value: currentStreakText,
+          sub: computed.streaks.currentType ? 'Active streak' : 'No graded streak yet'
+        },
+        {
+          name: 'Longest Win Streak',
+          value: computed.streaks.longestWin || 0,
+          sub: 'Season best'
+        },
+        {
+          name: 'Longest Loss Streak',
+          value: computed.streaks.longestLoss || 0,
+          sub: 'Season worst'
+        },
+        {
+          name: computed.last5.title,
+          value: computed.last5.record,
+          sub: `${computed.last5.gamesInWindow} graded • ${computed.last5.profit >= 0 ? '+' : ''}${computed.last5.profit.toFixed(2)}u`
+        },
+        {
+          name: computed.last10.title,
+          value: computed.last10.record,
+          sub: `${computed.last10.gamesInWindow} graded • ${computed.last10.profit >= 0 ? '+' : ''}${computed.last10.profit.toFixed(2)}u`
+        },
+        {
+          name: computed.last20.title,
+          value: computed.last20.record,
+          sub: `${computed.last20.gamesInWindow} graded • ${computed.last20.profit >= 0 ? '+' : ''}${computed.last20.profit.toFixed(2)}u`
+        }
       ];
+
       document.getElementById('momentumGrid').innerHTML = cards.map(c => `
         <div class="stat-card">
           <div class="stat-name">${c.name}</div>
@@ -746,10 +1010,16 @@
     function renderROI(summary) {
       const body = document.getElementById('roiTable');
       if (!summary.historicalROI.length) {
-        body.innerHTML = '<tr><td colspan="2" class="muted">No Historical ROI rows found in Summary!I10:L19.</td></tr>';
+        body.innerHTML = '<tr><td colspan="2">No Historical ROI rows found in Summary!I10:L19.</td></tr>';
         return;
       }
-      body.innerHTML = summary.historicalROI.map(r => `<tr><td>${r.year}</td><td>${r.roi}</td></tr>`).join('');
+
+      body.innerHTML = summary.historicalROI.map(r => `
+        <tr>
+          <td>${r.year}</td>
+          <td>${r.roi}</td>
+        </tr>
+      `).join('');
     }
 
     function buildRecentRows(dataRows, today) {
@@ -763,6 +1033,7 @@
     function renderRecent(dataRows, today) {
       const rows = buildRecentRows(dataRows, today);
       document.getElementById('recentCountPill').textContent = `${rows.length} rows`;
+
       const body = document.getElementById('recentTable');
       body.innerHTML = rows.map(r => `
         <tr>
@@ -772,47 +1043,63 @@
           <td>${Number.isFinite(r.units) ? r.units.toFixed(2) : 'TBD'}</td>
           <td>${r.odds || 'TBD'}</td>
           <td>${Number.isFinite(r.profit) ? `${r.profit >= 0 ? '+' : ''}${r.profit.toFixed(2)}` : '—'}</td>
-          <td>${Number.isFinite(r.balance) ? formatCurrency(r.balance) : '—'}</td>
         </tr>
       `).join('');
     }
 
     let chart;
+
     function renderChart(computed) {
       const rows = computed.graded.filter(r => Number.isFinite(r.balance));
       document.getElementById('gradedCountPill').textContent = `${rows.length} graded game${rows.length === 1 ? '' : 's'}`;
+
       const ctx = document.getElementById('balanceChart').getContext('2d');
-      const labels = rows.map(r => dateLabel(r.date));
-      const balances = rows.map(r => r.balance);
+
+      let labels = rows.map(r => dateLabel(r.date));
+      let balances = rows.map(r => r.balance);
+
       const peaks = [];
       let runningPeak = Number.NEGATIVE_INFINITY;
       for (const v of balances) {
         runningPeak = Math.max(runningPeak, v);
         peaks.push(runningPeak);
       }
+
+      const singlePoint = balances.length === 1;
+      let chartBalances = balances.slice();
+      let chartPeaks = peaks.slice();
+      let chartLabels = labels.slice();
+
+      if (singlePoint) {
+        chartLabels = [labels[0], labels[0]];
+        chartBalances = [balances[0], balances[0]];
+        chartPeaks.splice(0, chartPeaks.length, peaks[0], peaks[0]);
+      }
+
       if (chart) chart.destroy();
+
       chart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels,
+          labels: chartLabels,
           datasets: [
             {
               label: 'Balance',
-              data: balances,
+              data: chartBalances,
               borderColor: '#5b8cff',
               backgroundColor: 'rgba(91,140,255,.18)',
               borderWidth: 3,
-              pointRadius: 0,
-              pointHoverRadius: 4,
+              pointRadius: singlePoint ? 4 : 0,
+              pointHoverRadius: 5,
               fill: true,
               tension: .28
             },
             {
               label: 'Peak',
-              data: peaks,
+              data: chartPeaks,
               borderColor: '#ffb454',
               borderWidth: 2,
-              pointRadius: 0,
+              pointRadius: singlePoint ? 4 : 0,
               fill: false,
               borderDash: [6, 5],
               tension: .28
@@ -823,19 +1110,41 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { labels: { color: '#c4cbe0' } },
+            legend: {
+              labels: { color: '#c4cbe0' }
+            },
             tooltip: {
               backgroundColor: '#161b24',
               borderColor: '#2b3140',
               borderWidth: 1,
               titleColor: '#f5f7fb',
               bodyColor: '#d8def0',
-              callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}` }
+              callbacks: {
+                label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`
+              }
             }
           },
           scales: {
-            x: { ticks: { color: '#a8b1c7', maxTicksLimit: 8 }, grid: { display: false }, border: { color: '#2b3140' } },
-            y: { ticks: { color: '#a8b1c7', callback: (v) => formatCurrency(v) }, grid: { color: 'rgba(255,255,255,.07)' }, border: { color: '#2b3140' } }
+            x: {
+              ticks: {
+                color: '#a8b1c7',
+                maxTicksLimit: 8,
+                callback: function(value, index) {
+                  if (singlePoint && index > 0) return '';
+                  return this.getLabelForValue(value);
+                }
+              },
+              grid: { display: false },
+              border: { color: '#2b3140' }
+            },
+            y: {
+              ticks: {
+                color: '#a8b1c7',
+                callback: (v) => formatCurrency(v)
+              },
+              grid: { color: 'rgba(255,255,255,.07)' },
+              border: { color: '#2b3140' }
+            }
           }
         }
       });
@@ -843,33 +1152,43 @@
 
     async function init() {
       try {
-        const [summaryGrid, dataGrid] = await Promise.all([parseCSV(SUMMARY_URL, false), parseCSV(DATA_URL, false)]);
+        const [summaryGrid, dataGrid] = await Promise.all([
+          parseCSV(SUMMARY_URL),
+          parseCSV(DATA_URL)
+        ]);
+
         const summary = parseSummaryGrid(summaryGrid);
         const dataRows = parseDataGrid(dataGrid);
         const computed = deriveComputed(dataRows);
-        const now = new Date();
-        const today = normalizeDate(now);
-        const todaysRows = dataRows.filter(r => normalizeDate(r.date).getTime() === today.getTime());
-        const nextRows = dataRows.filter(r => r.date > today);
 
-        renderTodayCard(todaysRows, nextRows);
+        const today = normalizeDate(new Date());
+        const todaysRows = dataRows.filter(r => r.date && today && r.date.getTime() === today.getTime());
+
+        renderTodayCard(todaysRows);
         renderSummary(summary, computed);
         renderMomentum(computed);
         renderROI(summary);
         renderRecent(dataRows, today);
         renderChart(computed);
 
-        document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
+        document.getElementById('lastUpdated').textContent =
+          `Updated ${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
+
         document.getElementById('app').classList.remove('loading');
       } catch (error) {
         console.error(error);
         document.getElementById('app').classList.remove('loading');
         document.getElementById('todaySubtitle').textContent = 'CSV fetch failed';
-        document.getElementById('todayCountPill').textContent = 'error';
-        document.getElementById('todayBody').innerHTML = `<div class="empty-panel"><div style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">Data load error</div><div class="muted">Couldn’t read one of the published CSV feeds. Double-check the published links and that the repo is serving the latest index.html.</div></div>`;
-        document.getElementById('lastUpdated').textContent = 'Error loading data';
+        document.getElementById('todayCountPill').textContent = 'Error';
+        document.getElementById('todayBody').innerHTML = `
+          <div class="empty-panel">
+            <div style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">Data load error</div>
+            <div>Couldn’t read one of the published CSV feeds. Double-check the published links and make sure GitHub Pages is serving the latest file.</div>
+          </div>
+        `;
       }
     }
+
     init();
   </script>
 </body>
