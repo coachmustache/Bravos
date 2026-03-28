@@ -896,66 +896,47 @@
       `;
     }
 
-    function renderSummary(summary, computed) {
-      const metrics = [
-        {
-          label: 'YTD Record',
-          value: computed.record || '0-0',
-          sub: 'Wins-Losses-Pushes',
-          cls: 'blue'
-        },
-        {
-          label: 'Total Profit',
-          value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'),
-          sub: 'Season to date',
-          cls: Number.isFinite(computed.totalProfit) ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '') : ''
-        },
-        {
-          label: 'ROI',
-          value: summary.topMetrics.roi || '—',
-          sub: 'Pulled from Summary',
-          cls: 'blue'
-        },
-        {
-          label: 'Bankroll',
-          value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—',
-          sub: `Peak ${Number.isFinite(computed.peak) ? formatCurrency(computed.peak) : '—'} • DD ${formatCurrency(computed.drawdown)}`,
-          cls: 'orange'
-        },
-        {
-          label: 'Bravo Size',
-          value: summary.topMetrics.bravoSize || '—',
-          sub: '',
-          cls: ''
-        },
-        {
-          label: 'Total Stake',
-          value: summary.topMetrics.totalStake || '—',
-          sub: '',
-          cls: ''
-        },
-        {
-          label: 'BR Start',
-          value: summary.topMetrics.brStart || '—',
-          sub: '',
-          cls: ''
-        },
-        {
-          label: 'ROB',
-          value: summary.topMetrics.rob || '—',
-          sub: '',
-          cls: ''
-        }
-      ];
+  function renderSummary(summary, computed) {
+    const drawdownText = summary.topMetrics.drawdown || (Number.isFinite(computed.drawdown) ? formatCurrency(computed.drawdown) : '—');
+    const peakText = summary.topMetrics.peak || (Number.isFinite(computed.peak) ? formatCurrency(computed.peak) : '—');
 
-      document.getElementById('summaryMetrics').innerHTML = metrics.map(m => `
-        <div class="metric">
-          <div class="metric-label">${m.label}</div>
-          <div class="metric-value ${m.cls}">${m.value}</div>
-          <div class="metric-sub">${m.sub || '&nbsp;'}</div>
-        </div>
-      `).join('');
-    }
+    const metrics = [
+      {
+        label: 'YTD Record',
+        value: computed.record || '0-0',
+        sub: 'Wins-Losses-Pushes',
+        cls: 'blue'
+      },
+      {
+        label: 'Total Profit',
+        value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'),
+        sub: 'Season to date',
+        cls: Number.isFinite(computed.totalProfit)
+          ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '')
+          : ''
+      },
+      {
+        label: 'ROI',
+        value: summary.topMetrics.roi || '—',
+        sub: 'Based on graded wagers',
+        cls: 'blue'
+      },
+      {
+        label: 'Bankroll',
+        value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—',
+        sub: `Peak ${peakText} • DD ${drawdownText}`,
+        cls: 'orange'
+      }
+    ];
+
+    document.getElementById('summaryMetrics').innerHTML = metrics.map(m => `
+      <div class="metric">
+      <div class="metric-label">${m.label}</div>
+      <div class="metric-value ${m.cls}">${m.value}</div>
+      <div class="metric-sub">${m.sub}</div>
+    </div>
+  `).join('');
+}
 
     function renderMomentum(computed) {
       const currentStreakText = computed.streaks.currentType
