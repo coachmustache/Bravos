@@ -291,11 +291,6 @@
       font-size: 2rem;
       font-weight: 800;
       line-height: 1;
-    }
-
-    .metric-sub {
-      color: var(--muted);
-      font-size: .82rem;
       margin-top: 8px;
     }
 
@@ -440,8 +435,9 @@
       color: var(--muted);
     }
 
-    td.green { color: var(--green); font-weight: 700; }
-    td.red { color: var(--red); font-weight: 700; }
+    td.green, .clv-green { color: var(--green); font-weight: 700; }
+    td.red, .clv-red { color: var(--red); font-weight: 700; }
+    .clv-neutral { color: var(--muted); }
 
     .footer-note {
       margin-top: 18px;
@@ -566,6 +562,7 @@
                 <th>Units</th>
                 <th>Odds</th>
                 <th>Profit</th>
+                <th>CLV</th>
               </tr>
             </thead>
             <tbody id="recentTable"></tbody>
@@ -594,7 +591,7 @@
       </div>
     </section>
 
-    <div class="footer-note">Using published Google Sheets CSV feeds. Live sportsbook odds will be added later.</div>
+    <div class="footer-note">Using your published Google Sheets CSV feeds. Live sportsbook odds can be added later.</div>
   </div>
 
   <script>
@@ -632,6 +629,7 @@
       TOR: 'https://a.espncdn.com/i/teamlogos/mlb/500/tor.png',
       WSH: 'https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png'
     };
+
     const TEAM_NAMES = {
       ATL: 'Atlanta Braves',
       ARI: 'Arizona Diamondbacks',
@@ -662,7 +660,8 @@
       TEX: 'Texas Rangers',
       TOR: 'Toronto Blue Jays',
       WSH: 'Washington Nationals'
-  };
+    };
+
     function parseCSV(url) {
       return new Promise((resolve, reject) => {
         Papa.parse(url, {
@@ -719,6 +718,7 @@
         .replace(/\$/g, '')
         .replace(/,/g, '')
         .replace(/u$/i, '')
+        .replace(/%/g, '')
         .trim();
 
       if (!txt || txt === '-' || txt === '—') return NaN;
@@ -736,6 +736,11 @@
       return `${value.toFixed(2)}u`;
     }
 
+    function formatPercentDecimal(value, digits = 2) {
+      if (!Number.isFinite(value)) return '—';
+      return `${(value * 100).toFixed(digits)}%`;
+    }
+
     function dateLabel(date) {
       if (!date) return '—';
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -749,6 +754,13 @@
       const r = safeText(result);
       const cls = r === 'Win' ? 'win' : r === 'Loss' ? 'loss' : r === 'Push' ? 'push' : r === 'PPD' ? 'ppd' : '';
       return `<span class="chip ${cls}">${r || '—'}</span>`;
+    }
+
+    function clvClass(value) {
+      if (!Number.isFinite(value)) return 'clv-neutral';
+      if (value > 0) return 'clv-green';
+      if (value < 0) return 'clv-red';
+      return 'clv-neutral';
     }
 
     function parseSummaryGrid(grid) {
@@ -790,7 +802,9 @@
           units: parseNumeric(row[3]),
           odds: safeText(row[5]),
           profit: parseNumeric(row[7]),
-          balance: parseNumeric(row[8])
+          balance: parseNumeric(row[8]),
+          closingLine: parseNumeric(row[10]),
+          clv: parseNumeric(row[11])
         });
       }
 
@@ -849,7 +863,6 @@
       return {
         title: `Last ${n}`,
         record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`,
-        gamesInWindow: slice.length,
         profit
       };
     }
@@ -871,6 +884,15 @@
         drawdown = Math.max(drawdown, peak - row.balance);
       }
 
+      const clvRows = graded.filter(r => Number.isFinite(r.clv));
+      const avgClv = clvRows.length
+        ? clvRows.reduce((sum, r) => sum + r.clv, 0) / clvRows.length
+        : NaN;
+
+      const beatClosePct = clvRows.length
+        ? clvRows.filter(r => r.clv > 0).length / clvRows.length
+        : NaN;
+
       return {
         graded,
         record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`,
@@ -879,6 +901,8 @@
         currentBalance,
         peak: Number.isFinite(peak) ? peak : NaN,
         drawdown,
+        avgClv,
+        beatClosePct,
         streaks: computeStreaks(graded),
         last5: buildWindowStats(graded, 5),
         last10: buildWindowStats(graded, 10),
@@ -948,13 +972,11 @@
         {
           label: 'YTD Record',
           value: computed.record || '0-0',
-          sub: 'Wins-Losses-Pushes',
           cls: 'blue'
         },
         {
           label: 'Total Profit',
           value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'),
-          sub: 'Season to date',
           cls: Number.isFinite(computed.totalProfit)
             ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '')
             : ''
@@ -962,14 +984,36 @@
         {
           label: 'ROI',
           value: summary.topMetrics.roi || '—',
-          sub: 'Based on graded wagers',
           cls: 'blue'
         },
         {
           label: 'Bankroll',
           value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—',
-          sub: `Peak ${peakText} • DD ${drawdownText}`,
           cls: 'orange'
+        },
+        {
+          label: 'Peak',
+          value: peakText,
+          cls: ''
+        },
+        {
+          label: 'Drawdown',
+          value: drawdownText,
+          cls: ''
+        },
+        {
+          label: 'Avg CLV',
+          value: formatPercentDecimal(computed.avgClv, 2),
+          cls: Number.isFinite(computed.avgClv)
+            ? (computed.avgClv > 0 ? 'green' : computed.avgClv < 0 ? 'red' : '')
+            : ''
+        },
+        {
+          label: 'Beat Close %',
+          value: formatPercentDecimal(computed.beatClosePct, 1),
+          cls: Number.isFinite(computed.beatClosePct)
+            ? (computed.beatClosePct >= 0.5 ? 'green' : 'red')
+            : ''
         }
       ];
 
@@ -977,7 +1021,6 @@
         <div class="metric">
           <div class="metric-label">${m.label}</div>
           <div class="metric-value ${m.cls}">${m.value}</div>
-          <div class="metric-sub">${m.sub}</div>
         </div>
       `).join('');
     }
@@ -1083,6 +1126,7 @@
           <td>${Number.isFinite(r.units) ? r.units.toFixed(2) : 'TBD'}</td>
           <td>${r.odds || 'TBD'}</td>
           <td>${Number.isFinite(r.profit) ? `${r.profit >= 0 ? '+' : ''}${r.profit.toFixed(2)}` : '—'}</td>
+          <td class="${clvClass(r.clv)}">${Number.isFinite(r.clv) ? formatPercentDecimal(r.clv, 2) : '—'}</td>
         </tr>
       `).join('');
     }
@@ -1091,7 +1135,7 @@
 
     function renderChart(computed) {
       const rows = computed.graded.filter(r => Number.isFinite(r.balance));
-      document.getElementById('gradedCountPill').textContent = `${rows.length} graded game${rows.length === 1 ? '' : 's'}`;
+      document.getElementById('gradedCountPill').textContent = `${rows.length} graded games`;
 
       const ctx = document.getElementById('balanceChart').getContext('2d');
 
