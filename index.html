@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bravos Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --bg:#111214;
+      --panel:#1a1c20;
+      --panel-2:#20232a;
+      --line:#2f3440;
+      --text:#f3f4f6;
+      --muted:#a8afbd;
+      --blue:#6ea8ff;
+      --blue-soft:rgba(110,168,255,.16);
+      --orange:#f5a623;
+      --orange-soft:rgba(245,166,35,.16);
+      --green:#35c759;
+      --red:#ff6b6b;
+      --shadow:0 12px 30px rgba(0,0,0,.28);
+      --radius:20px;
+    }
+
+    * { box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(110,168,255,.07), transparent 28%),
+        linear-gradient(180deg, #121317 0%, #0d0f12 100%);
+      color:var(--text);
+    }
+
+    .wrap{
+      width:min(1280px, 94vw);
+      margin:0 auto;
+      padding:28px 0 48px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:20px;
+    }
+
+    .title{
+      font-size:clamp(28px, 4vw, 44px);
+      font-weight:800;
+      letter-spacing:.04em;
+      margin:0;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:6px;
+    }
+
+    .pill{
+      background:linear-gradient(180deg, rgba(110,168,255,.16), rgba(110,168,255,.07));
+      color:var(--blue);
+      border:1px solid rgba(110,168,255,.28);
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:13px;
+      font-weight:700;
+      box-shadow:var(--shadow);
+      white-space:nowrap;
+    }
+
+    .grid{
+      display:grid;
+      gap:18px;
+    }
+
+    .today-grid{
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      margin-bottom:18px;
+    }
+
+    .stats-grid{
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+      margin-bottom:18px;
+    }
+
+    .main-grid{
+      grid-template-columns:1.35fr .9fr;
+      align-items:start;
+    }
+
+    @media (max-width: 980px){
+      .main-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .card-header{
+      padding:16px 18px 0;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+
+    .card-title{
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .card-body{
+      padding:18px;
+    }
+
+    .today-card{
+      position:relative;
+      background:
+        radial-gradient(circle at top right, rgba(110,168,255,.16), transparent 36%),
+        linear-gradient(180deg, #1b1d22 0%, #15171b 100%);
+    }
+
+    .today-top{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin-bottom:14px;
+    }
+
+    .logo-box{
+      width:54px;
+      height:54px;
+      border-radius:14px;
+      background:var(--panel-2);
+      border:1px solid var(--line);
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      overflow:hidden;
+    }
+
+    .logo-box img{
+      width:38px;
+      height:38px;
+      object-fit:contain;
+    }
+
+    .game-headline{
+      font-size:22px;
+      font-weight:800;
+      line-height:1.15;
+      margin:0;
+    }
+
+    .game-sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:4px;
+    }
+
+    .today-metrics{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .mini{
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px 14px;
+    }
+
+    .mini-label{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:var(--muted);
+      margin-bottom:7px;
+      font-weight:700;
+    }
+
+    .mini-value{
+      font-size:22px;
+      font-weight:800;
+      line-height:1;
+    }
+
+    .status{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+    }
+
+    .status.liveish{
+      color:var(--blue);
+      border-color:rgba(110,168,255,.3);
+      background:rgba(110,168,255,.12);
+    }
+
+    .kpi{
+      padding:18px;
+      min-height:108px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .kpi-label{
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:800;
+      margin-bottom:10px;
+    }
+
+    .kpi-value{
+      font-size:30px;
+      font-weight:800;
+      line-height:1;
+      margin-bottom:6px;
+    }
+
+    .kpi-sub{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .accent-blue .kpi-value { color:var(--blue); }
+    .accent-orange .kpi-value { color:var(--orange); }
+    .accent-green .kpi-value { color:var(--green); }
+
+    .panel-section{
+      display:grid;
+      gap:18px;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:12px;
+    }
+
+    @media (max-width: 640px){
+      .form-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .form-box{
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .form-box h4{
+      margin:0 0 10px 0;
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+
+    .form-big{
+      font-size:28px;
+      font-weight:800;
+    }
+
+    .chart-wrap{
+      height:340px;
+      padding:8px 14px 16px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th, td{
+      padding:11px 12px;
+      text-align:left;
+      border-bottom:1px solid var(--line);
+      font-size:14px;
+    }
+
+    th{
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:800;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:44px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+
+    .badge.win{ color:var(--green); background:rgba(53,199,89,.12); border-color:rgba(53,199,89,.26); }
+    .badge.loss{ color:var(--red); background:rgba(255,107,107,.12); border-color:rgba(255,107,107,.26); }
+    .badge.push{ color:var(--orange); background:rgba(245,166,35,.12); border-color:rgba(245,166,35,.26); }
+    .badge.ppd{ color:var(--muted); }
+
+    .muted{ color:var(--muted); }
+    .pos{ color:var(--green); }
+    .neg{ color:var(--red); }
+    .neutral{ color:var(--muted); }
+
+    .empty-state{
+      padding:24px 18px 22px;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .footer-note{
+      margin-top:16px;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+    }
+
+    .loading{
+      padding:50px 20px;
+      text-align:center;
+      color:var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1 class="title">Bravos Dashboard</h1>
+        <div class="subtitle" id="lastUpdated">Loading data...</div>
+      </div>
+      <div class="pill" id="seasonBadge">2026 ATL Betting</div>
+    </div>
+
+    <div id="app">
+      <div class="loading">Loading dashboard…</div>
+    </div>
+
+    <div class="footer-note">
+      Data source: published Google Sheets CSV • Odds currently pulled from your logged bet odds column
+    </div>
+  </div>
+
+  <script>
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=1101765880&single=true&output=csv";
+    const SUMMARY_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=338106424&single=true&output=csv";
+
+    const TEAM_LOGOS = {
+      ATL:"https://a.espncdn.com/i/teamlogos/mlb/500/atl.png",
+      ARI:"https://a.espncdn.com/i/teamlogos/mlb/500/ari.png",
+      ATH:"https://a.espncdn.com/i/teamlogos/mlb/500/oak.png",
+      AZ:"https://a.espncdn.com/i/teamlogos/mlb/500/ari.png",
+      BAL:"https://a.espncdn.com/i/teamlogos/mlb/500/bal.png",
+      BOS:"https://a.espncdn.com/i/teamlogos/mlb/500/bos.png",
+      CHC:"https://a.espncdn.com/i/teamlogos/mlb/500/chc.png",
+      CIN:"https://a.espncdn.com/i/teamlogos/mlb/500/cin.png",
+      CLE:"https://a.espncdn.com/i/teamlogos/mlb/500/cle.png",
+      COL:"https://a.espncdn.com/i/teamlogos/mlb/500/col.png",
+      DET:"https://a.espncdn.com/i/teamlogos/mlb/500/det.png",
+      HOU:"https://a.espncdn.com/i/teamlogos/mlb/500/hou.png",
+      KC:"https://a.espncdn.com/i/teamlogos/mlb/500/kc.png",
+      KCR:"https://a.espncdn.com/i/teamlogos/mlb/500/kc.png",
+      LAA:"https://a.espncdn.com/i/teamlogos/mlb/500/laa.png",
+      LAD:"https://a.espncdn.com/i/teamlogos/mlb/500/lad.png",
+      MIA:"https://a.espncdn.com/i/teamlogos/mlb/500/mia.png",
+      MIL:"https://a.espncdn.com/i/teamlogos/mlb/500/mil.png",
+      MIN:"https://a.espncdn.com/i/teamlogos/mlb/500/min.png",
+      NYM:"https://a.espncdn.com/i/teamlogos/mlb/500/nym.png",
+      NYY:"https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
+      PHI:"https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
+      PIT:"https://a.espncdn.com/i/teamlogos/mlb/500/pit.png",
+      SD:"https://a.espncdn.com/i/teamlogos/mlb/500/sd.png",
+      SEA:"https://a.espncdn.com/i/teamlogos/mlb/500/sea.png",
+      SF:"https://a.espncdn.com/i/teamlogos/mlb/500/sf.png",
+      STL:"https://a.espncdn.com/i/teamlogos/mlb/500/stl.png",
+      TB:"https://a.espncdn.com/i/teamlogos/mlb/500/tb.png",
+      TEX:"https://a.espncdn.com/i/teamlogos/mlb/500/tex.png",
+      TOR:"https://a.espncdn.com/i/teamlogos/mlb/500/tor.png",
+      WSH:"https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png"
+    };
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let current = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          row.push(current);
+          current = "";
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+          if (char === '\r' && next === '\n') i++;
+          row.push(current);
+          rows.push(row);
+          row = [];
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+
+      if (current.length > 0 || row.length) {
+        row.push(current);
+        rows.push(row);
+      }
+
+      const headers = rows[0].map(h => h.trim());
+      return rows.slice(1).filter(r => r.some(cell => String(cell).trim() !== "")).map(r => {
+        const obj = {};
+        headers.forEach((h, idx) => obj[h] = (r[idx] || "").trim());
+        return obj;
+      });
+    }
+
+    function normalizeHeaderKey(obj) {
+      const normalized = {};
+      Object.keys(obj).forEach(k => {
+        normalized[k.trim().toLowerCase()] = obj[k];
+      });
+      return normalized;
+    }
+
+    function parseSheetDate(value) {
+      if (!value) return null;
+
+      const direct = new Date(value);
+      if (!isNaN(direct)) return direct;
+
+      const year = 2026;
+      const attempt = new Date(`${value}-${year}`);
+      if (!isNaN(attempt)) return attempt;
+
+      return null;
+    }
+
+    function sameDay(a, b) {
+      return a && b &&
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate();
+    }
+
+    function fmtDate(d) {
+      return d.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric"
+      });
+    }
+
+    function fmtMoney(v) {
+      const n = Number(v);
+      if (!isFinite(n)) return "—";
+      return `${n < 0 ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
+    }
+
+    function fmtPct(v) {
+      const n = Number(v);
+      if (!isFinite(n)) return "—";
+      return `${n.toFixed(2)}%`;
+    }
+
+    function num(val) {
+      if (val === null || val === undefined) return NaN;
+      const clean = String(val).replace(/[$,%]/g, "").trim();
+      if (clean === "" || clean === "-") return NaN;
+      return Number(clean);
+    }
+
+    function displayUnits(v) {
+      const n = num(v);
+      if (isNaN(n)) return "TBD";
+      return n % 1 === 0 ? `${n.toFixed(0)}u` : `${n.toFixed(2)}u`;
+    }
+
+    function displayOdds(v) {
+      if (!v || String(v).trim() === "") return "TBD";
+      return String(v).trim();
+    }
+
+    function resultBadgeClass(result) {
+      const r = (result || "").toLowerCase();
+      if (r === "win") return "win";
+      if (r === "loss") return "loss";
+      if (r === "push") return "push";
+      if (r === "ppd") return "ppd";
+      return "";
+    }
+
+    function computeStreaks(rows) {
+      const graded = rows.filter(r => ["Win","Loss"].includes(r.result));
+      let currentType = null;
+      let currentCount = 0;
+      let longestWin = 0;
+      let longestLoss = 0;
+
+      for (let i = 0; i < graded.length; i++) {
+        const res = graded[i].result;
+        if (i === 0) {
+          currentType = res;
+          currentCount = 1;
+        } else if (graded[i - 1].result === res) {
+          currentCount++;
+        } else {
+          currentType = res;
+          currentCount = 1;
+        }
+
+        if (res === "Win") longestWin = Math.max(longestWin, currentCount);
+        if (res === "Loss") longestLoss = Math.max(longestLoss, currentCount);
+      }
+
+      let liveType = null;
+      let liveCount = 0;
+      for (let i = graded.length - 1; i >= 0; i--) {
+        const res = graded[i].result;
+        if (!liveType) {
+          liveType = res;
+          liveCount = 1;
+        } else if (res === liveType) {
+          liveCount++;
+        } else {
+          break;
+        }
+      }
+
+      return {
+        current: graded.length ? `${liveType} ${liveCount}` : "—",
+        longestWin,
+        longestLoss
+      };
+    }
+
+    function recentRecord(rows, count) {
+      const recent = rows.filter(r => ["Win","Loss","Push"].includes(r.result)).slice(-count);
+      let w = 0, l = 0, p = 0, profit = 0;
+
+      recent.forEach(r => {
+        if (r.result === "Win") w++;
+        else if (r.result === "Loss") l++;
+        else if (r.result === "Push") p++;
+
+        if (!isNaN(r.profit)) profit += r.profit;
+      });
+
+      return {
+        label: `${w}-${l}${p ? `-${p}` : ""}`,
+        profit
+      };
+    }
+
+    function extractSummary(summaryRows) {
+      const out = {};
+      summaryRows.forEach(row => {
+        const values = Object.values(row).map(v => String(v).trim());
+        if (values.length >= 2) {
+          out[values[0]] = values[1];
+        }
+      });
+      return out;
+    }
+
+    function historicalRoi(summaryRows) {
+      const parsed = [];
+      summaryRows.forEach(row => {
+        const vals = Object.values(row).map(v => String(v).trim()).filter(Boolean);
+        if (vals.length >= 2) {
+          const year = vals[0];
+          const roi = vals[1];
+          if (/^\d{4}$/.test(year) || year.toUpperCase() === "TOTAL") {
+            parsed.push({ year, roi });
+          }
+        }
+      });
+      return parsed;
+    }
+
+    function opponentLogo(abbr) {
+      return TEAM_LOGOS[abbr] || TEAM_LOGOS.ATL;
+    }
+
+    function buildTodayCards(todayGames) {
+      if (!todayGames.length) {
+        return `
+          <div class="card today-card">
+            <div class="card-header">
+              <div class="card-title">Today</div>
+              <div class="status">No game today</div>
+            </div>
+            <div class="empty-state">
+              No Braves wager card for today yet. Check back when today’s slate is posted.
+            </div>
+          </div>
+        `;
+      }
+
+      return todayGames.map((game, idx) => `
+        <div class="card today-card">
+          <div class="card-header">
+            <div class="card-title">${todayGames.length > 1 ? `Today • Game ${idx + 1}` : "Today"}</div>
+            <div class="status liveish">${game.result ? game.result : "Scheduled"}</div>
+          </div>
+          <div class="card-body">
+            <div class="today-top">
+              <div class="logo-box">
+                <img src="${opponentLogo(game.opponent)}" alt="${game.opponent} logo" />
+              </div>
+              <div>
+                <h3 class="game-headline">ATL vs ${game.opponent || "TBD"}</h3>
+                <div class="game-sub">${fmtDate(game.date)}${todayGames.length > 1 ? " • Doubleheader slate" : ""}</div>
+              </div>
+            </div>
+
+            <div class="today-metrics">
+              <div class="mini">
+                <div class="mini-label">Units</div>
+                <div class="mini-value">${displayUnits(game.bravos)}</div>
+              </div>
+              <div class="mini">
+                <div class="mini-label">Odds</div>
+                <div class="mini-value">${displayOdds(game.odds)}</div>
+              </div>
+              <div class="mini">
+                <div class="mini-label">Result</div>
+                <div class="mini-value">${game.result || "Pending"}</div>
+              </div>
+              <div class="mini">
+                <div class="mini-label">Profit</div>
+                <div class="mini-value ${isNaN(game.profit) ? "neutral" : game.profit > 0 ? "pos" : game.profit < 0 ? "neg" : "neutral"}">${isNaN(game.profit) ? "TBD" : fmtMoney(game.profit)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function buildApp(rows, summaryRows) {
+      const app = document.getElementById("app");
+
+      const today = new Date();
+      const history = rows.filter(r => r.date).sort((a,b) => a.date - b.date);
+
+      const todayGames = history.filter(r => sameDay(r.date, today));
+      const played = history.filter(r => ["Win","Loss","Push","PPD"].includes(r.result));
+      const graded = history.filter(r => ["Win","Loss","Push"].includes(r.result));
+      const winLossOnly = history.filter(r => ["Win","Loss"].includes(r.result));
+
+      const wins = winLossOnly.filter(r => r.result === "Win").length;
+      const losses = winLossOnly.filter(r => r.result === "Loss").length;
+      const pushes = graded.filter(r => r.result === "Push").length;
+      const currentBalance = [...history].reverse().find(r => !isNaN(r.balance))?.balance ?? 200;
+      const startingBankroll = history.find(r => !isNaN(r.balance)) ? 200 : 200;
+      const totalProfit = graded.reduce((sum, r) => sum + (isNaN(r.profit) ? 0 : r.profit), 0);
+      const roi = history.filter(r => !isNaN(r.bravos) && r.bravos > 0).length
+        ? (totalProfit / history.filter(r => !isNaN(r.bravos) && r.bravos > 0).reduce((s, r) => s + r.bravos, 0)) * 100
+        : 0;
+      const peak = Math.max(...history.map(r => isNaN(r.balance) ? 0 : r.balance), 200);
+      const drawdown = peak - currentBalance;
+      const streaks = computeStreaks(history);
+      const last5 = recentRecord(history, 5);
+      const last10 = recentRecord(history, 10);
+      const last20 = recentRecord(history, 20);
+      const histRoi = historicalRoi(summaryRows);
+
+      app.innerHTML = `
+        <div class="grid today-grid">
+          ${buildTodayCards(todayGames)}
+        </div>
+
+        <div class="grid stats-grid">
+          <div class="card kpi accent-blue">
+            <div class="kpi-label">YTD Record</div>
+            <div class="kpi-value">${wins}-${losses}${pushes ? `-${pushes}` : ""}</div>
+            <div class="kpi-sub">Wins-Losses${pushes ? "-Pushes" : ""}</div>
+          </div>
+
+          <div class="card kpi accent-green">
+            <div class="kpi-label">Total Profit</div>
+            <div class="kpi-value">${fmtMoney(totalProfit)}</div>
+            <div class="kpi-sub">Season to date</div>
+          </div>
+
+          <div class="card kpi ${roi >= 0 ? "accent-blue" : "accent-orange"}">
+            <div class="kpi-label">ROI</div>
+            <div class="kpi-value">${fmtPct(roi)}</div>
+            <div class="kpi-sub">Based on graded wagers</div>
+          </div>
+
+          <div class="card kpi accent-orange">
+            <div class="kpi-label">Bankroll</div>
+            <div class="kpi-value">${fmtMoney(currentBalance)}</div>
+            <div class="kpi-sub">Peak ${fmtMoney(peak)} • DD ${fmtMoney(drawdown)}</div>
+          </div>
+        </div>
+
+        <div class="grid main-grid">
+          <div class="panel-section">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Bankroll Trend</div>
+                <div class="status">${played.length} graded/posted games</div>
+              </div>
+              <div class="chart-wrap">
+                <canvas id="bankrollChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Recent Games</div>
+                <div class="status">${history.length} scheduled</div>
+              </div>
+              <div class="card-body" style="padding-top:8px;">
+                <div style="overflow:auto;">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Opp</th>
+                        <th>Result</th>
+                        <th>Units</th>
+                        <th>Odds</th>
+                        <th>Profit</th>
+                        <th>Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${history.slice(-12).reverse().map(r => `
+                        <tr>
+                          <td>${fmtDate(r.date)}</td>
+                          <td>${r.opponent || "—"}</td>
+                          <td><span class="badge ${resultBadgeClass(r.result)}">${r.result || "—"}</span></td>
+                          <td>${displayUnits(r.bravos)}</td>
+                          <td>${displayOdds(r.odds)}</td>
+                          <td class="${isNaN(r.profit) ? "muted" : r.profit > 0 ? "pos" : r.profit < 0 ? "neg" : "neutral"}">${isNaN(r.profit) ? "—" : fmtMoney(r.profit)}</td>
+                          <td>${isNaN(r.balance) ? "—" : fmtMoney(r.balance)}</td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Momentum</div>
+              </div>
+              <div class="card-body">
+                <div class="form-grid">
+                  <div class="form-box">
+                    <h4>Current Streak</h4>
+                    <div class="form-big">${streaks.current}</div>
+                  </div>
+                  <div class="form-box">
+                    <h4>Longest Win Streak</h4>
+                    <div class="form-big">${streaks.longestWin}</div>
+                  </div>
+                  <div class="form-box">
+                    <h4>Longest Loss Streak</h4>
+                    <div class="form-big">${streaks.longestLoss}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Recent Form</div>
+              </div>
+              <div class="card-body">
+                <div class="form-grid">
+                  <div class="form-box">
+                    <h4>Last 5</h4>
+                    <div class="form-big">${last5.label}</div>
+                    <div class="${last5.profit > 0 ? "pos" : last5.profit < 0 ? "neg" : "muted"}" style="margin-top:8px;font-weight:700;">${fmtMoney(last5.profit)}</div>
+                  </div>
+                  <div class="form-box">
+                    <h4>Last 10</h4>
+                    <div class="form-big">${last10.label}</div>
+                    <div class="${last10.profit > 0 ? "pos" : last10.profit < 0 ? "neg" : "muted"}" style="margin-top:8px;font-weight:700;">${fmtMoney(last10.profit)}</div>
+                  </div>
+                  <div class="form-box">
+                    <h4>Last 20</h4>
+                    <div class="form-big">${last20.label}</div>
+                    <div class="${last20.profit > 0 ? "pos" : last20.profit < 0 ? "neg" : "muted"}" style="margin-top:8px;font-weight:700;">${fmtMoney(last20.profit)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Historical ROI</div>
+              </div>
+              <div class="card-body" style="padding-top:8px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Year</th>
+                      <th>ROI</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${histRoi.map(r => `
+                      <tr>
+                        <td style="font-weight:800;">${r.year}</td>
+                        <td>${r.roi}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      drawChart(history);
+
+      document.getElementById("lastUpdated").textContent =
+        `Last updated ${new Date().toLocaleString()}`;
+    }
+
+    function drawChart(rows) {
+      const ctx = document.getElementById("bankrollChart");
+      if (!ctx) return;
+
+      const chartRows = rows.filter(r => r.date && !isNaN(r.balance));
+      const labels = chartRows.map(r => fmtDate(r.date));
+      const data = chartRows.map(r => r.balance);
+      const peakLine = [...data].map((_, idx) => Math.max(...data.slice(0, idx + 1)));
+
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Balance",
+              data,
+              borderColor: "#6ea8ff",
+              backgroundColor: "rgba(110,168,255,.14)",
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0,
+              pointHoverRadius: 4,
+              borderWidth: 3
+            },
+            {
+              label: "Peak",
+              data: peakLine,
+              borderColor: "rgba(245,166,35,.7)",
+              borderDash: [6, 6],
+              pointRadius: 0,
+              tension: 0.2,
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: "#c7ccd6" }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#a8afbd", maxTicksLimit: 8 },
+              grid: { display: false }
+            },
+            y: {
+              ticks: {
+                color: "#a8afbd",
+                callback: value => "$" + Number(value).toFixed(2)
+              },
+              grid: { color: "rgba(255,255,255,.07)" }
+            }
+          }
+        }
+      });
+    }
+
+    async function init() {
+      try {
+        const [dataCsv, summaryCsv] = await Promise.all([
+          fetch(DATA_URL).then(r => r.text()),
+          fetch(SUMMARY_URL).then(r => r.text())
+        ]);
+
+        const rawRows = parseCSV(dataCsv).map(normalizeHeaderKey);
+        const summaryRows = parseCSV(summaryCsv);
+
+        const rows = rawRows.map(r => ({
+          date: parseSheetDate(r["game date"] || r["date"]),
+          opponent: r["opponent"] || "",
+          result: r["result"] || "",
+          bravos: num(r["bravos"] || r["units"] || r["unit"]),
+          odds: r["odds"] || "",
+          profit: num(r["profit"]),
+          balance: num(r["balance"])
+        })).filter(r => r.date);
+
+        buildApp(rows, summaryRows);
+      } catch (err) {
+        console.error(err);
+        document.getElementById("app").innerHTML = `
+          <div class="card">
+            <div class="empty-state">
+              Could not load the dashboard data. Double-check the published CSV links and GitHub Pages refresh.
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
