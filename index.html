@@ -974,12 +974,12 @@
 
       const metrics = [
         {
-          label: 'YTD Record',
+          label: 'Season Record',
           value: computed.record || '0-0',
           cls: 'blue'
         },
         {
-          label: 'Total Profit',
+          label: 'Profit',
           value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'),
           cls: Number.isFinite(computed.totalProfit)
             ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '')
