@@ -649,15 +649,23 @@
       const txt = safeText(value);
       if (!txt) return null;
 
+      const shortMatch = txt.match(/^([A-Za-z]{3})-(\d{1,2})$/);
+      if (shortMatch) {
+        const [, monTxt, dayTxt] = shortMatch;
+        const months = {
+          Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+          Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+        };
+        const month = months[monTxt];
+        const day = Number(dayTxt);
+        if (Number.isInteger(month) && Number.isInteger(day)) {
+          return new Date(2026, month, day);
+        }
+      }
+
       const direct = new Date(txt);
       if (!Number.isNaN(direct.getTime())) {
         return new Date(direct.getFullYear(), direct.getMonth(), direct.getDate());
-      }
-
-      const currentYear = new Date().getFullYear();
-      const alt = new Date(`${txt}-${currentYear}`);
-      if (!Number.isNaN(alt.getTime())) {
-        return new Date(alt.getFullYear(), alt.getMonth(), alt.getDate());
       }
 
       return null;
@@ -726,35 +734,26 @@
 
     function parseDataGrid(grid) {
       const rows = [];
+
       for (let i = 1; i < grid.length; i++) {
         const row = grid[i] || [];
-        const date = parseSheetDate(row[0]);
-        const opp = safeText(row[1]);
-        const result = safeText(row[2]);
-        const units = parseNumeric(row[3]);
-        const odds = safeText(row[5]);
-        const profit = parseNumeric(row[7 - 1]);  // H if zero-based 7? corrected below by fallback
-        const balance = parseNumeric(row[8 - 1]); // I if zero-based 8? corrected below by fallback
-
-        const profitFallback = parseNumeric(row[6]);   // actual H-like position from your screenshot may vary
-        const balanceFallback = parseNumeric(row[7]);  // actual I-like position from your screenshot may vary
 
         rows.push({
           rowNumber: i + 1,
-          date,
-          opp,
-          result,
-          units,
-          odds,
-          profit: Number.isFinite(profitFallback) ? profitFallback : profit,
-          balance: Number.isFinite(balanceFallback) ? balanceFallback : balance
+          date: parseSheetDate(row[0]),
+          opp: safeText(row[1]),
+          result: safeText(row[2]),
+          units: parseNumeric(row[3]),
+          odds: safeText(row[5]),
+          profit: parseNumeric(row[7]),
+          balance: parseNumeric(row[8])
         });
       }
 
       return rows
         .filter(r => r.date instanceof Date && !Number.isNaN(r.date.getTime()))
         .sort((a, b) => {
-          const diff = a.date - b.date;
+          const diff = a.date.getTime() - b.date.getTime();
           return diff !== 0 ? diff : a.rowNumber - b.rowNumber;
         });
     }
@@ -898,8 +897,6 @@
     }
 
     function renderSummary(summary, computed) {
-      const drawdownNumeric = parseNumeric(summary.topMetrics.drawdown);
-
       const metrics = [
         {
           label: 'YTD Record',
@@ -1023,8 +1020,8 @@
     }
 
     function buildRecentRows(dataRows, today) {
-      const pastAndToday = dataRows.filter(r => r.date <= today);
-      const future = dataRows.filter(r => r.date > today);
+      const pastAndToday = dataRows.filter(r => r.date && r.date.getTime() <= today.getTime());
+      const future = dataRows.filter(r => r.date && r.date.getTime() > today.getTime());
       const recentPast = pastAndToday.slice(-8);
       const nearFuture = future.slice(0, Math.max(0, 12 - recentPast.length));
       return [...recentPast, ...nearFuture];
