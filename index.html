@@ -4,909 +4,818 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bravos Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <style>
-    :root{
-      --bg:#111214;
-      --panel:#1a1c20;
-      --panel-2:#20232a;
-      --line:#2f3440;
-      --text:#f3f4f6;
-      --muted:#a8afbd;
-      --blue:#6ea8ff;
-      --blue-soft:rgba(110,168,255,.16);
-      --orange:#f5a623;
-      --orange-soft:rgba(245,166,35,.16);
-      --green:#35c759;
-      --red:#ff6b6b;
-      --shadow:0 12px 30px rgba(0,0,0,.28);
-      --radius:20px;
+    :root {
+      --bg: #111216;
+      --panel: #181b22;
+      --panel-2: #1f2430;
+      --line: #2b3140;
+      --line-soft: #232836;
+      --text: #f5f7fb;
+      --muted: #a8b1c7;
+      --blue: #5b8cff;
+      --blue-soft: rgba(91, 140, 255, 0.18);
+      --green: #36d399;
+      --orange: #ffb454;
+      --red: #ff6b7a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 22px;
     }
-
-    * { box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
       background:
-        radial-gradient(circle at top, rgba(110,168,255,.07), transparent 28%),
-        linear-gradient(180deg, #121317 0%, #0d0f12 100%);
-      color:var(--text);
+        radial-gradient(circle at top left, rgba(91,140,255,.12), transparent 26%),
+        radial-gradient(circle at top right, rgba(255,180,84,.08), transparent 18%),
+        linear-gradient(180deg, #12151d 0%, #0d1016 100%);
+      min-height: 100vh;
     }
-
-    .wrap{
-      width:min(1280px, 94vw);
-      margin:0 auto;
-      padding:28px 0 48px;
+    .wrap {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
     }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:20px;
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 18px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
-
-    .title{
-      font-size:clamp(28px, 4vw, 44px);
-      font-weight:800;
-      letter-spacing:.04em;
-      margin:0;
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.35rem);
+      letter-spacing: .03em;
+      font-weight: 800;
     }
-
-    .subtitle{
-      color:var(--muted);
-      font-size:14px;
-      margin-top:6px;
+    .title-block p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: .98rem;
     }
-
-    .pill{
-      background:linear-gradient(180deg, rgba(110,168,255,.16), rgba(110,168,255,.07));
-      color:var(--blue);
-      border:1px solid rgba(110,168,255,.28);
-      border-radius:999px;
-      padding:10px 14px;
-      font-size:13px;
-      font-weight:700;
-      box-shadow:var(--shadow);
-      white-space:nowrap;
+    .status-pill {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: .92rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
     }
-
-    .grid{
-      display:grid;
-      gap:18px;
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(54,211,153,.7);
     }
-
-    .today-grid{
-      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
-      margin-bottom:18px;
+    .grid-top {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
     }
-
-    .stats-grid{
-      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-      margin-bottom:18px;
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
-
-    .main-grid{
-      grid-template-columns:1.35fr .9fr;
-      align-items:start;
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 18px 20px 0;
     }
-
-    @media (max-width: 980px){
-      .main-grid{
-        grid-template-columns:1fr;
-      }
+    .card-title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: .02em;
     }
-
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
+    .card-subtitle {
+      color: var(--muted);
+      font-size: .88rem;
+      margin-top: 6px;
     }
-
-    .card-header{
-      padding:16px 18px 0;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.08);
+      width: fit-content;
+      color: var(--muted);
+      background: rgba(0,0,0,.14);
+      font-size: .84rem;
     }
-
-    .card-title{
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      color:var(--muted);
-      font-weight:800;
+    .today-card-body { padding: 16px 20px 20px; }
+    .today-games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
     }
-
-    .card-body{
-      padding:18px;
+    .game-tile {
+      padding: 16px;
+      border: 1px solid var(--line-soft);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(91,140,255,.12), rgba(91,140,255,.03));
+      min-height: 185px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
     }
-
-    .today-card{
-      position:relative;
-      background:
-        radial-gradient(circle at top right, rgba(110,168,255,.16), transparent 36%),
-        linear-gradient(180deg, #1b1d22 0%, #15171b 100%);
+    .matchup {
+      display: flex;
+      gap: 14px;
+      align-items: center;
     }
-
-    .today-top{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      margin-bottom:14px;
+    .logo-wrap {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.045);
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.06);
+      flex-shrink: 0;
+      overflow: hidden;
     }
-
-    .logo-box{
-      width:54px;
-      height:54px;
-      border-radius:14px;
-      background:var(--panel-2);
-      border:1px solid var(--line);
-      display:grid;
-      place-items:center;
-      flex:0 0 auto;
-      overflow:hidden;
+    .logo-wrap img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
     }
-
-    .logo-box img{
-      width:38px;
-      height:38px;
-      object-fit:contain;
+    .matchup h2 {
+      margin: 0;
+      font-size: 1.45rem;
+      line-height: 1.05;
     }
-
-    .game-headline{
-      font-size:22px;
-      font-weight:800;
-      line-height:1.15;
-      margin:0;
+    .matchup p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
     }
-
-    .game-sub{
-      color:var(--muted);
-      font-size:13px;
-      margin-top:4px;
+    .today-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
-
-    .today-metrics{
-      display:grid;
-      grid-template-columns:repeat(2, 1fr);
-      gap:12px;
-      margin-top:14px;
+    .mini-stat {
+      border: 1px solid var(--line-soft);
+      border-radius: 16px;
+      padding: 12px 13px;
+      background: rgba(255,255,255,.025);
+      min-height: 74px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
-
-    .mini{
-      background:rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:12px 14px;
+    .mini-label {
+      color: var(--muted);
+      font-size: .74rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 7px;
     }
-
-    .mini-label{
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      color:var(--muted);
-      margin-bottom:7px;
-      font-weight:700;
+    .mini-value {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
     }
-
-    .mini-value{
-      font-size:22px;
-      font-weight:800;
-      line-height:1;
+    .summary-card { padding: 0 0 18px; }
+    .metrics-grid {
+      padding: 16px 18px 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
     }
-
-    .status{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:800;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      color:var(--muted);
+    .metric {
+      background: rgba(255,255,255,.025);
+      border: 1px solid var(--line-soft);
+      border-radius: 18px;
+      padding: 14px 14px 16px;
+      min-height: 92px;
     }
-
-    .status.liveish{
-      color:var(--blue);
-      border-color:rgba(110,168,255,.3);
-      background:rgba(110,168,255,.12);
+    .metric-label {
+      color: var(--muted);
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
     }
-
-    .kpi{
-      padding:18px;
-      min-height:108px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
+    .metric-value {
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
     }
-
-    .kpi-label{
-      color:var(--muted);
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      font-weight:800;
-      margin-bottom:10px;
+    .metric.small .metric-value { font-size: 1.18rem; }
+    .green { color: var(--green); }
+    .orange { color: var(--orange); }
+    .red { color: var(--red); }
+    .blue { color: var(--blue); }
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1.35fr .95fr;
+      gap: 18px;
+      margin-bottom: 18px;
     }
-
-    .kpi-value{
-      font-size:30px;
-      font-weight:800;
-      line-height:1;
-      margin-bottom:6px;
+    .chart-area { padding: 12px 18px 18px; }
+    .chart-wrap { height: 390px; padding: 12px 8px 6px; }
+    .stats-grid {
+      padding: 14px 18px 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
-
-    .kpi-sub{
-      color:var(--muted);
-      font-size:13px;
+    .stat-card {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.025);
+      border: 1px solid var(--line-soft);
+      min-height: 94px;
     }
-
-    .accent-blue .kpi-value { color:var(--blue); }
-    .accent-orange .kpi-value { color:var(--orange); }
-    .accent-green .kpi-value { color:var(--green); }
-
-    .panel-section{
-      display:grid;
-      gap:18px;
+    .stat-name {
+      color: var(--muted);
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 12px;
     }
-
-    .form-grid{
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:12px;
+    .stat-value {
+      font-weight: 800;
+      font-size: 1.5rem;
     }
-
-    @media (max-width: 640px){
-      .form-grid{
-        grid-template-columns:1fr;
-      }
+    .stat-sub { color: var(--muted); font-size: .88rem; margin-top: 6px; }
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
     }
-
-    .form-box{
-      background:rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:14px;
+    table { width: 100%; border-collapse: collapse; }
+    .table-wrap { padding: 8px 18px 18px; overflow-x: auto; }
+    th, td {
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line-soft);
+      font-size: .93rem;
+      white-space: nowrap;
     }
-
-    .form-box h4{
-      margin:0 0 10px 0;
-      color:var(--muted);
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
+    th {
+      color: var(--muted);
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 700;
     }
-
-    .form-big{
-      font-size:28px;
-      font-weight:800;
+    tr:last-child td { border-bottom: none; }
+    .result-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 62px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      border: 1px solid transparent;
     }
-
-    .chart-wrap{
-      height:340px;
-      padding:8px 14px 16px;
+    .chip-win { background: rgba(54,211,153,.12); color: var(--green); border-color: rgba(54,211,153,.26); }
+    .chip-loss { background: rgba(255,107,122,.12); color: var(--red); border-color: rgba(255,107,122,.26); }
+    .chip-push { background: rgba(255,180,84,.12); color: var(--orange); border-color: rgba(255,180,84,.26); }
+    .chip-ppd { background: rgba(255,255,255,.06); color: var(--muted); border-color: rgba(255,255,255,.08); }
+    .muted { color: var(--muted); }
+    .empty-panel {
+      border: 1px solid var(--line-soft);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,.02);
+      color: var(--muted);
     }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
+    .footer-note {
+      color: var(--muted);
+      margin-top: 16px;
+      text-align: center;
+      font-size: .86rem;
     }
-
-    th, td{
-      padding:11px 12px;
-      text-align:left;
-      border-bottom:1px solid var(--line);
-      font-size:14px;
+    .loading { opacity: .72; }
+    @media (max-width: 1100px) {
+      .grid-top, .section-grid, .bottom-grid { grid-template-columns: 1fr; }
     }
-
-    th{
-      color:var(--muted);
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      font-weight:800;
-    }
-
-    tr:last-child td{
-      border-bottom:none;
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:44px;
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:800;
-      font-size:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      color:var(--muted);
-    }
-
-    .badge.win{ color:var(--green); background:rgba(53,199,89,.12); border-color:rgba(53,199,89,.26); }
-    .badge.loss{ color:var(--red); background:rgba(255,107,107,.12); border-color:rgba(255,107,107,.26); }
-    .badge.push{ color:var(--orange); background:rgba(245,166,35,.12); border-color:rgba(245,166,35,.26); }
-    .badge.ppd{ color:var(--muted); }
-
-    .muted{ color:var(--muted); }
-    .pos{ color:var(--green); }
-    .neg{ color:var(--red); }
-    .neutral{ color:var(--muted); }
-
-    .empty-state{
-      padding:24px 18px 22px;
-      color:var(--muted);
-      font-size:15px;
-    }
-
-    .footer-note{
-      margin-top:16px;
-      color:var(--muted);
-      font-size:12px;
-      text-align:center;
-    }
-
-    .loading{
-      padding:50px 20px;
-      text-align:center;
-      color:var(--muted);
+    @media (max-width: 760px) {
+      .metrics-grid, .stats-grid { grid-template-columns: 1fr; }
+      .wrap { padding: 16px 12px 34px; }
+      .chart-wrap { height: 300px; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div>
-        <h1 class="title">Bravos Dashboard</h1>
-        <div class="subtitle" id="lastUpdated">Loading data...</div>
+  <div class="wrap loading" id="app">
+    <div class="hero">
+      <div class="title-block">
+        <h1>Bravos Dashboard</h1>
+        <p>ATL betting tracker · SB60-style live dashboard</p>
       </div>
-      <div class="pill" id="seasonBadge">2026 ATL Betting</div>
+      <div class="status-pill"><span class="status-dot"></span> <span id="lastUpdated">Loading latest sheet data...</span></div>
     </div>
 
-    <div id="app">
-      <div class="loading">Loading dashboard…</div>
-    </div>
+    <section class="grid-top">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Today’s Card</h2>
+            <div class="card-subtitle" id="todaySubtitle">Checking today’s schedule...</div>
+          </div>
+          <div class="pill" id="todayCountPill">0 games</div>
+        </div>
+        <div class="today-card-body" id="todayBody"></div>
+      </div>
 
-    <div class="footer-note">
-      Data source: published Google Sheets CSV • Odds currently pulled from your logged bet odds column
-    </div>
+      <div class="card summary-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Season Snapshot</h2>
+            <div class="card-subtitle">Summary values + computed streak metrics</div>
+          </div>
+        </div>
+        <div class="metrics-grid" id="summaryMetrics"></div>
+      </div>
+    </section>
+
+    <section class="section-grid">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Bankroll Trend</h2>
+            <div class="card-subtitle">Balance by graded game</div>
+          </div>
+          <div class="pill" id="gradedCountPill">0 graded games</div>
+        </div>
+        <div class="chart-area">
+          <div class="chart-wrap"><canvas id="balanceChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Momentum</h2>
+            <div class="card-subtitle">Streaks and recent form</div>
+          </div>
+        </div>
+        <div class="stats-grid" id="momentumGrid"></div>
+      </div>
+    </section>
+
+    <section class="bottom-grid">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Recent Games</h2>
+            <div class="card-subtitle">Nearest games around today</div>
+          </div>
+          <div class="pill" id="recentCountPill">0 rows</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Opp</th><th>Result</th><th>Units</th><th>Odds</th><th>Profit</th><th>Balance</th></tr>
+            </thead>
+            <tbody id="recentTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Historical ROI</h2>
+            <div class="card-subtitle">Summary!I10:L19 block</div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Year</th><th>ROI</th></tr></thead>
+            <tbody id="roiTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">Using your published Google Sheets CSV feeds. Live sportsbook odds can be added later in a v2.</div>
   </div>
 
   <script>
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=1101765880&single=true&output=csv";
-    const SUMMARY_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=338106424&single=true&output=csv";
+    const SUMMARY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=338106424&single=true&output=csv';
+    const DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=1101765880&single=true&output=csv';
+    const DASHBOARD_YEAR = 2026;
 
     const TEAM_LOGOS = {
-      ATL:"https://a.espncdn.com/i/teamlogos/mlb/500/atl.png",
-      ARI:"https://a.espncdn.com/i/teamlogos/mlb/500/ari.png",
-      ATH:"https://a.espncdn.com/i/teamlogos/mlb/500/oak.png",
-      AZ:"https://a.espncdn.com/i/teamlogos/mlb/500/ari.png",
-      BAL:"https://a.espncdn.com/i/teamlogos/mlb/500/bal.png",
-      BOS:"https://a.espncdn.com/i/teamlogos/mlb/500/bos.png",
-      CHC:"https://a.espncdn.com/i/teamlogos/mlb/500/chc.png",
-      CIN:"https://a.espncdn.com/i/teamlogos/mlb/500/cin.png",
-      CLE:"https://a.espncdn.com/i/teamlogos/mlb/500/cle.png",
-      COL:"https://a.espncdn.com/i/teamlogos/mlb/500/col.png",
-      DET:"https://a.espncdn.com/i/teamlogos/mlb/500/det.png",
-      HOU:"https://a.espncdn.com/i/teamlogos/mlb/500/hou.png",
-      KC:"https://a.espncdn.com/i/teamlogos/mlb/500/kc.png",
-      KCR:"https://a.espncdn.com/i/teamlogos/mlb/500/kc.png",
-      LAA:"https://a.espncdn.com/i/teamlogos/mlb/500/laa.png",
-      LAD:"https://a.espncdn.com/i/teamlogos/mlb/500/lad.png",
-      MIA:"https://a.espncdn.com/i/teamlogos/mlb/500/mia.png",
-      MIL:"https://a.espncdn.com/i/teamlogos/mlb/500/mil.png",
-      MIN:"https://a.espncdn.com/i/teamlogos/mlb/500/min.png",
-      NYM:"https://a.espncdn.com/i/teamlogos/mlb/500/nym.png",
-      NYY:"https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
-      PHI:"https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
-      PIT:"https://a.espncdn.com/i/teamlogos/mlb/500/pit.png",
-      SD:"https://a.espncdn.com/i/teamlogos/mlb/500/sd.png",
-      SEA:"https://a.espncdn.com/i/teamlogos/mlb/500/sea.png",
-      SF:"https://a.espncdn.com/i/teamlogos/mlb/500/sf.png",
-      STL:"https://a.espncdn.com/i/teamlogos/mlb/500/stl.png",
-      TB:"https://a.espncdn.com/i/teamlogos/mlb/500/tb.png",
-      TEX:"https://a.espncdn.com/i/teamlogos/mlb/500/tex.png",
-      TOR:"https://a.espncdn.com/i/teamlogos/mlb/500/tor.png",
-      WSH:"https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png"
+      ATL: 'https://a.espncdn.com/i/teamlogos/mlb/500/atl.png', ARI: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png', AZ: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png',
+      ATH: 'https://a.espncdn.com/i/teamlogos/mlb/500/oak.png', BAL: 'https://a.espncdn.com/i/teamlogos/mlb/500/bal.png', BOS: 'https://a.espncdn.com/i/teamlogos/mlb/500/bos.png',
+      CHC: 'https://a.espncdn.com/i/teamlogos/mlb/500/chc.png', CWS: 'https://a.espncdn.com/i/teamlogos/mlb/500/chw.png', CHW: 'https://a.espncdn.com/i/teamlogos/mlb/500/chw.png',
+      CIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/cin.png', CLE: 'https://a.espncdn.com/i/teamlogos/mlb/500/cle.png', COL: 'https://a.espncdn.com/i/teamlogos/mlb/500/col.png',
+      DET: 'https://a.espncdn.com/i/teamlogos/mlb/500/det.png', HOU: 'https://a.espncdn.com/i/teamlogos/mlb/500/hou.png', KC: 'https://a.espncdn.com/i/teamlogos/mlb/500/kc.png',
+      KCR: 'https://a.espncdn.com/i/teamlogos/mlb/500/kc.png', LAA: 'https://a.espncdn.com/i/teamlogos/mlb/500/laa.png', LAD: 'https://a.espncdn.com/i/teamlogos/mlb/500/lad.png',
+      MIA: 'https://a.espncdn.com/i/teamlogos/mlb/500/mia.png', MIL: 'https://a.espncdn.com/i/teamlogos/mlb/500/mil.png', MIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/min.png',
+      NYM: 'https://a.espncdn.com/i/teamlogos/mlb/500/nym.png', NYY: 'https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png', OAK: 'https://a.espncdn.com/i/teamlogos/mlb/500/oak.png',
+      PHI: 'https://a.espncdn.com/i/teamlogos/mlb/500/phi.png', PIT: 'https://a.espncdn.com/i/teamlogos/mlb/500/pit.png', SD: 'https://a.espncdn.com/i/teamlogos/mlb/500/sd.png',
+      SDP: 'https://a.espncdn.com/i/teamlogos/mlb/500/sd.png', SEA: 'https://a.espncdn.com/i/teamlogos/mlb/500/sea.png', SF: 'https://a.espncdn.com/i/teamlogos/mlb/500/sf.png',
+      STL: 'https://a.espncdn.com/i/teamlogos/mlb/500/stl.png', TB: 'https://a.espncdn.com/i/teamlogos/mlb/500/tb.png', TEX: 'https://a.espncdn.com/i/teamlogos/mlb/500/tex.png',
+      TOR: 'https://a.espncdn.com/i/teamlogos/mlb/500/tor.png', WSH: 'https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png'
     };
 
-    function parseCSV(text) {
+    function parseCSV(url, header = false) {
+      return new Promise((resolve, reject) => {
+        Papa.parse(url, {
+          download: true,
+          header,
+          skipEmptyLines: false,
+          complete: (results) => resolve(results.data),
+          error: reject
+        });
+      });
+    }
+
+    function excelSerialToDate(serial) {
+      const n = Number(serial);
+      if (!Number.isFinite(n)) return null;
+      const utcDays = Math.floor(n - 25569);
+      const utcValue = utcDays * 86400;
+      const dateInfo = new Date(utcValue * 1000);
+      return new Date(dateInfo.getUTCFullYear(), dateInfo.getUTCMonth(), dateInfo.getUTCDate());
+    }
+
+    function parseDate(value) {
+      if (value == null) return null;
+      if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+      let v = String(value).trim();
+      if (!v) return null;
+      if (/^\d+(\.\d+)?$/.test(v)) return excelSerialToDate(v);
+      v = v.replace(/\u2013|\u2014/g, '-').replace(/\s+/g, ' ').replace(/,/g, '');
+      const md = v.match(/^([A-Za-z]{3,9})-?(\d{1,2})(?:-?(\d{2,4}))?$/);
+      if (md) {
+        const months = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+        const m = months[md[1].slice(0,3).toLowerCase()];
+        const d = Number(md[2]);
+        let y = md[3] ? Number(md[3]) : DASHBOARD_YEAR;
+        if (y < 100) y += 2000;
+        if (m >= 0 && d && y) return new Date(y, m, d);
+      }
+      const fallback = new Date(v);
+      return Number.isNaN(fallback.getTime()) ? null : new Date(fallback.getFullYear(), fallback.getMonth(), fallback.getDate());
+    }
+
+    function normalizeDate(date) {
+      return date ? new Date(date.getFullYear(), date.getMonth(), date.getDate()) : null;
+    }
+
+    function formatCurrency(value) {
+      const num = Number(value);
+      if (Number.isNaN(num)) return '—';
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+    }
+
+    function formatUnits(value, fallback = 'TBD') {
+      const num = Number(value);
+      return Number.isFinite(num) ? `${num.toFixed(2)}u` : fallback;
+    }
+
+    function numeric(value) {
+      if (value == null) return NaN;
+      const cleaned = String(value).replace(/[$,%\s,]/g, '').replace(/[–—]/g, '-');
+      return cleaned === '' || cleaned === '-' ? NaN : Number(cleaned);
+    }
+
+    function asResult(value) {
+      const v = String(value || '').trim().toLowerCase();
+      if (v === 'win' || v === 'w') return 'Win';
+      if (v === 'loss' || v === 'l') return 'Loss';
+      if (v === 'push' || v === 'p') return 'Push';
+      if (v === 'ppd' || v === 'postponed') return 'PPD';
+      return '';
+    }
+
+    function isGraded(result) {
+      return ['Win', 'Loss', 'Push'].includes(result);
+    }
+
+    function getResultChip(result) {
+      const map = { Win: 'chip-win', Loss: 'chip-loss', Push: 'chip-push', PPD: 'chip-ppd' };
+      return `<span class="result-chip ${map[result] || 'chip-ppd'}">${result || '—'}</span>`;
+    }
+
+    function dateLabel(date) {
+      return date ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+    }
+
+    function getCell(grid, rowIndex1, colIndex1) {
+      return grid?.[rowIndex1 - 1]?.[colIndex1 - 1] ?? '';
+    }
+
+    function safeText(value) {
+      return String(value ?? '').trim();
+    }
+
+    function parseDataGrid(grid) {
+      const headerRowIndex = grid.findIndex(row => row.some(cell => safeText(cell).toLowerCase() === 'game date'));
+      if (headerRowIndex === -1) throw new Error('Could not find header row in 2026 Data CSV.');
+      const headers = grid[headerRowIndex].map(h => safeText(h));
       const rows = [];
-      let row = [];
-      let current = "";
-      let inQuotes = false;
-
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const next = text[i + 1];
-
-        if (char === '"') {
-          if (inQuotes && next === '"') {
-            current += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === ',' && !inQuotes) {
-          row.push(current);
-          current = "";
-        } else if ((char === '\n' || char === '\r') && !inQuotes) {
-          if (char === '\r' && next === '\n') i++;
-          row.push(current);
-          rows.push(row);
-          row = [];
-          current = "";
-        } else {
-          current += char;
-        }
+      for (let i = headerRowIndex + 1; i < grid.length; i++) {
+        const row = grid[i];
+        if (!row || !row.length) continue;
+        const obj = Object.fromEntries(headers.map((h, idx) => [h, row[idx] ?? '']));
+        const date = parseDate(obj['Game Date'] || obj['Date']);
+        if (!date) continue;
+        rows.push({
+          rowNumber: i + 1,
+          date,
+          opp: safeText(obj['Opponent']).toUpperCase(),
+          result: asResult(obj['Result']),
+          units: numeric(obj['Bravos'] || obj['Units']),
+          odds: safeText(obj['Odds']),
+          profit: numeric(obj['Profit']),
+          balance: numeric(obj['Balance']),
+          spread: safeText(obj['Spread'])
+        });
       }
+      return rows.sort((a, b) => a.date - b.date || a.rowNumber - b.rowNumber);
+    }
 
-      if (current.length > 0 || row.length) {
-        row.push(current);
-        rows.push(row);
+    function parseSummaryGrid(grid) {
+      const topMetrics = {
+        bravoSize: safeText(getCell(grid, 4, 3)),
+        totalStake: safeText(getCell(grid, 5, 3)),
+        totalProfit: safeText(getCell(grid, 6, 3)),
+        roi: safeText(getCell(grid, 7, 3)),
+        brStart: safeText(getCell(grid, 4, 6)),
+        peak: safeText(getCell(grid, 5, 6)),
+        drawdown: safeText(getCell(grid, 6, 6)),
+        rob: safeText(getCell(grid, 7, 6))
+      };
+
+      const historicalROI = [];
+      for (let r = 10; r <= 19; r++) {
+        const year = safeText(getCell(grid, r, 9)) || safeText(getCell(grid, r, 10)) || safeText(getCell(grid, r, 11));
+        const roi = safeText(getCell(grid, r, 12)) || safeText(getCell(grid, r, 11)) || safeText(getCell(grid, r, 10));
+        if (!year && !roi) continue;
+        if (/^year$/i.test(year)) continue;
+        historicalROI.push({ year, roi });
       }
-
-      const headers = rows[0].map(h => h.trim());
-      return rows.slice(1).filter(r => r.some(cell => String(cell).trim() !== "")).map(r => {
-        const obj = {};
-        headers.forEach((h, idx) => obj[h] = (r[idx] || "").trim());
-        return obj;
-      });
+      return { topMetrics, historicalROI };
     }
 
-    function normalizeHeaderKey(obj) {
-      const normalized = {};
-      Object.keys(obj).forEach(k => {
-        normalized[k.trim().toLowerCase()] = obj[k];
-      });
-      return normalized;
-    }
-
-    function parseSheetDate(value) {
-      if (!value) return null;
-
-      const direct = new Date(value);
-      if (!isNaN(direct)) return direct;
-
-      const year = 2026;
-      const attempt = new Date(`${value}-${year}`);
-      if (!isNaN(attempt)) return attempt;
-
-      return null;
-    }
-
-    function sameDay(a, b) {
-      return a && b &&
-        a.getFullYear() === b.getFullYear() &&
-        a.getMonth() === b.getMonth() &&
-        a.getDate() === b.getDate();
-    }
-
-    function fmtDate(d) {
-      return d.toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric"
-      });
-    }
-
-    function fmtMoney(v) {
-      const n = Number(v);
-      if (!isFinite(n)) return "—";
-      return `${n < 0 ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
-    }
-
-    function fmtPct(v) {
-      const n = Number(v);
-      if (!isFinite(n)) return "—";
-      return `${n.toFixed(2)}%`;
-    }
-
-    function num(val) {
-      if (val === null || val === undefined) return NaN;
-      const clean = String(val).replace(/[$,%]/g, "").trim();
-      if (clean === "" || clean === "-") return NaN;
-      return Number(clean);
-    }
-
-    function displayUnits(v) {
-      const n = num(v);
-      if (isNaN(n)) return "TBD";
-      return n % 1 === 0 ? `${n.toFixed(0)}u` : `${n.toFixed(2)}u`;
-    }
-
-    function displayOdds(v) {
-      if (!v || String(v).trim() === "") return "TBD";
-      return String(v).trim();
-    }
-
-    function resultBadgeClass(result) {
-      const r = (result || "").toLowerCase();
-      if (r === "win") return "win";
-      if (r === "loss") return "loss";
-      if (r === "push") return "push";
-      if (r === "ppd") return "ppd";
-      return "";
-    }
-
-    function computeStreaks(rows) {
-      const graded = rows.filter(r => ["Win","Loss"].includes(r.result));
-      let currentType = null;
-      let currentCount = 0;
+    function computeStreaks(gradedRows) {
+      let currentType = '';
+      let currentLength = 0;
       let longestWin = 0;
       let longestLoss = 0;
-
-      for (let i = 0; i < graded.length; i++) {
-        const res = graded[i].result;
-        if (i === 0) {
-          currentType = res;
-          currentCount = 1;
-        } else if (graded[i - 1].result === res) {
-          currentCount++;
-        } else {
-          currentType = res;
-          currentCount = 1;
+      for (const row of gradedRows) {
+        if (!['Win', 'Loss'].includes(row.result)) continue;
+        if (row.result === currentType) currentLength += 1;
+        else {
+          currentType = row.result;
+          currentLength = 1;
         }
-
-        if (res === "Win") longestWin = Math.max(longestWin, currentCount);
-        if (res === "Loss") longestLoss = Math.max(longestLoss, currentCount);
+        if (row.result === 'Win') longestWin = Math.max(longestWin, currentLength);
+        if (row.result === 'Loss') longestLoss = Math.max(longestLoss, currentLength);
       }
-
-      let liveType = null;
-      let liveCount = 0;
-      for (let i = graded.length - 1; i >= 0; i--) {
-        const res = graded[i].result;
-        if (!liveType) {
-          liveType = res;
-          liveCount = 1;
-        } else if (res === liveType) {
-          liveCount++;
-        } else {
-          break;
-        }
+      let tailType = '';
+      let tailLength = 0;
+      for (let i = gradedRows.length - 1; i >= 0; i--) {
+        const res = gradedRows[i].result;
+        if (!['Win', 'Loss'].includes(res)) continue;
+        if (!tailType) tailType = res;
+        if (res === tailType) tailLength += 1;
+        else break;
       }
-
       return {
-        current: graded.length ? `${liveType} ${liveCount}` : "—",
+        currentWin: tailType === 'Win' ? tailLength : 0,
+        currentLoss: tailType === 'Loss' ? tailLength : 0,
         longestWin,
         longestLoss
       };
     }
 
-    function recentRecord(rows, count) {
-      const recent = rows.filter(r => ["Win","Loss","Push"].includes(r.result)).slice(-count);
-      let w = 0, l = 0, p = 0, profit = 0;
-
-      recent.forEach(r => {
-        if (r.result === "Win") w++;
-        else if (r.result === "Loss") l++;
-        else if (r.result === "Push") p++;
-
-        if (!isNaN(r.profit)) profit += r.profit;
-      });
-
+    function buildWindowStats(gradedRows, n) {
+      const slice = gradedRows.slice(-n);
+      const wins = slice.filter(r => r.result === 'Win').length;
+      const losses = slice.filter(r => r.result === 'Loss').length;
+      const pushes = slice.filter(r => r.result === 'Push').length;
+      const profit = slice.reduce((sum, r) => sum + (Number.isFinite(r.profit) ? r.profit : 0), 0);
       return {
-        label: `${w}-${l}${p ? `-${p}` : ""}`,
+        title: `Last ${Math.min(n, slice.length) || n}`,
+        record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`,
         profit
       };
     }
 
-    function extractSummary(summaryRows) {
-      const out = {};
-      summaryRows.forEach(row => {
-        const values = Object.values(row).map(v => String(v).trim());
-        if (values.length >= 2) {
-          out[values[0]] = values[1];
-        }
-      });
-      return out;
+    function deriveComputed(dataRows) {
+      const graded = dataRows.filter(r => isGraded(r.result));
+      const wins = graded.filter(r => r.result === 'Win').length;
+      const losses = graded.filter(r => r.result === 'Loss').length;
+      const pushes = graded.filter(r => r.result === 'Push').length;
+      const totalProfit = graded.reduce((sum, r) => sum + (Number.isFinite(r.profit) ? r.profit : 0), 0);
+      const totalUnits = graded.reduce((sum, r) => sum + (Number.isFinite(r.units) ? r.units : 0), 0);
+      const balances = graded.filter(r => Number.isFinite(r.balance));
+      const currentBalance = balances.length ? balances[balances.length - 1].balance : NaN;
+      let peak = Number.NEGATIVE_INFINITY;
+      let drawdown = 0;
+      for (const row of balances) {
+        peak = Math.max(peak, row.balance);
+        drawdown = Math.max(drawdown, peak - row.balance);
+      }
+      return {
+        graded,
+        record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`,
+        totalProfit,
+        totalUnits,
+        currentBalance,
+        peak: Number.isFinite(peak) ? peak : NaN,
+        drawdown,
+        streaks: computeStreaks(graded),
+        last5: buildWindowStats(graded, 5),
+        last10: buildWindowStats(graded, 10),
+        last20: buildWindowStats(graded, 20)
+      };
     }
 
-    function historicalRoi(summaryRows) {
-      const parsed = [];
-      summaryRows.forEach(row => {
-        const vals = Object.values(row).map(v => String(v).trim()).filter(Boolean);
-        if (vals.length >= 2) {
-          const year = vals[0];
-          const roi = vals[1];
-          if (/^\d{4}$/.test(year) || year.toUpperCase() === "TOTAL") {
-            parsed.push({ year, roi });
-          }
-        }
-      });
-      return parsed;
-    }
+    function renderTodayCard(todayRows, nextRows) {
+      const subtitle = document.getElementById('todaySubtitle');
+      const pill = document.getElementById('todayCountPill');
+      const body = document.getElementById('todayBody');
+      pill.textContent = `${todayRows.length} ${todayRows.length === 1 ? 'game' : 'games'}`;
 
-    function opponentLogo(abbr) {
-      return TEAM_LOGOS[abbr] || TEAM_LOGOS.ATL;
-    }
-
-    function buildTodayCards(todayGames) {
-      if (!todayGames.length) {
-        return `
-          <div class="card today-card">
-            <div class="card-header">
-              <div class="card-title">Today</div>
-              <div class="status">No game today</div>
-            </div>
-            <div class="empty-state">
-              No Braves wager card for today yet. Check back when today’s slate is posted.
-            </div>
-          </div>
-        `;
+      if (!todayRows.length) {
+        const nextGame = nextRows[0];
+        subtitle.textContent = 'No row in the sheet matched today’s date.';
+        body.innerHTML = `
+          <div class="empty-panel">
+            <div style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">No game today</div>
+            <div class="muted">No Braves game is listed for today in the 2026 Data sheet.</div>
+            <div style="margin-top:12px;" class="pill">${nextGame ? `Next up: ${dateLabel(nextGame.date)} vs ${nextGame.opp}` : 'No future games found'}</div>
+          </div>`;
+        return;
       }
 
-      return todayGames.map((game, idx) => `
-        <div class="card today-card">
-          <div class="card-header">
-            <div class="card-title">${todayGames.length > 1 ? `Today • Game ${idx + 1}` : "Today"}</div>
-            <div class="status liveish">${game.result ? game.result : "Scheduled"}</div>
-          </div>
-          <div class="card-body">
-            <div class="today-top">
-              <div class="logo-box">
-                <img src="${opponentLogo(game.opponent)}" alt="${game.opponent} logo" />
-              </div>
+      subtitle.textContent = todayRows.length > 1 ? 'All games scheduled for today are shown below.' : 'Today’s Braves wager card is live.';
+      body.innerHTML = `<div class="today-games-grid">${todayRows.map((row, idx) => {
+        const logo = TEAM_LOGOS[row.opp] || TEAM_LOGOS.ATL;
+        const unitsLabel = Number.isFinite(row.units) ? `${row.units.toFixed(2)}u` : (todayRows.length > 1 && idx > 0 ? 'Pending' : 'TBD');
+        const oddsLabel = row.odds || 'TBD';
+        const status = row.result || 'Scheduled';
+        return `
+          <article class="game-tile">
+            <div class="matchup">
+              <div class="logo-wrap"><img src="${logo}" alt="${row.opp} logo" onerror="this.style.display='none'"></div>
               <div>
-                <h3 class="game-headline">ATL vs ${game.opponent || "TBD"}</h3>
-                <div class="game-sub">${fmtDate(game.date)}${todayGames.length > 1 ? " • Doubleheader slate" : ""}</div>
+                <h2>ATL vs ${row.opp || '—'}</h2>
+                <p>${dateLabel(row.date)}${todayRows.length > 1 ? ` · Game ${idx + 1}` : ''}</p>
               </div>
             </div>
-
-            <div class="today-metrics">
-              <div class="mini">
-                <div class="mini-label">Units</div>
-                <div class="mini-value">${displayUnits(game.bravos)}</div>
-              </div>
-              <div class="mini">
-                <div class="mini-label">Odds</div>
-                <div class="mini-value">${displayOdds(game.odds)}</div>
-              </div>
-              <div class="mini">
-                <div class="mini-label">Result</div>
-                <div class="mini-value">${game.result || "Pending"}</div>
-              </div>
-              <div class="mini">
-                <div class="mini-label">Profit</div>
-                <div class="mini-value ${isNaN(game.profit) ? "neutral" : game.profit > 0 ? "pos" : game.profit < 0 ? "neg" : "neutral"}">${isNaN(game.profit) ? "TBD" : fmtMoney(game.profit)}</div>
-              </div>
+            <div class="today-meta">
+              <div class="mini-stat"><div class="mini-label">Units</div><div class="mini-value">${unitsLabel}</div></div>
+              <div class="mini-stat"><div class="mini-label">Odds</div><div class="mini-value">${oddsLabel}</div></div>
+              <div class="mini-stat"><div class="mini-label">Status</div><div class="mini-value" style="font-size:1rem;">${status}</div></div>
+              <div class="mini-stat"><div class="mini-label">Profit</div><div class="mini-value" style="font-size:1rem;">${Number.isFinite(row.profit) ? `${row.profit >= 0 ? '+' : ''}${row.profit.toFixed(2)}u` : '—'}</div></div>
             </div>
-          </div>
-        </div>
-      `).join("");
+          </article>`;
+      }).join('')}</div>`;
     }
 
-    function buildApp(rows, summaryRows) {
-      const app = document.getElementById("app");
-
-      const today = new Date();
-      const history = rows.filter(r => r.date).sort((a,b) => a.date - b.date);
-
-      const todayGames = history.filter(r => sameDay(r.date, today));
-      const played = history.filter(r => ["Win","Loss","Push","PPD"].includes(r.result));
-      const graded = history.filter(r => ["Win","Loss","Push"].includes(r.result));
-      const winLossOnly = history.filter(r => ["Win","Loss"].includes(r.result));
-
-      const wins = winLossOnly.filter(r => r.result === "Win").length;
-      const losses = winLossOnly.filter(r => r.result === "Loss").length;
-      const pushes = graded.filter(r => r.result === "Push").length;
-      const currentBalance = [...history].reverse().find(r => !isNaN(r.balance))?.balance ?? 200;
-      const startingBankroll = history.find(r => !isNaN(r.balance)) ? 200 : 200;
-      const totalProfit = graded.reduce((sum, r) => sum + (isNaN(r.profit) ? 0 : r.profit), 0);
-      const roi = history.filter(r => !isNaN(r.bravos) && r.bravos > 0).length
-        ? (totalProfit / history.filter(r => !isNaN(r.bravos) && r.bravos > 0).reduce((s, r) => s + r.bravos, 0)) * 100
-        : 0;
-      const peak = Math.max(...history.map(r => isNaN(r.balance) ? 0 : r.balance), 200);
-      const drawdown = peak - currentBalance;
-      const streaks = computeStreaks(history);
-      const last5 = recentRecord(history, 5);
-      const last10 = recentRecord(history, 10);
-      const last20 = recentRecord(history, 20);
-      const histRoi = historicalRoi(summaryRows);
-
-      app.innerHTML = `
-        <div class="grid today-grid">
-          ${buildTodayCards(todayGames)}
+    function renderSummary(summary, computed) {
+      const roiNumeric = numeric(summary.topMetrics.roi);
+      const totalProfitNumeric = numeric(summary.topMetrics.totalProfit);
+      const drawdownNumeric = numeric(summary.topMetrics.drawdown);
+      const metrics = [
+        { label: 'Record', value: computed.record, cls: 'small' },
+        { label: 'Total Profit', value: summary.topMetrics.totalProfit || formatCurrency(computed.totalProfit), cls: totalProfitNumeric > 0 ? 'green' : totalProfitNumeric < 0 ? 'red' : '' },
+        { label: 'ROI', value: summary.topMetrics.roi || '—', cls: roiNumeric > 0 ? 'blue' : roiNumeric < 0 ? 'orange' : '' },
+        { label: 'Bravo Size', value: summary.topMetrics.bravoSize || '—' },
+        { label: 'Total Stake', value: summary.topMetrics.totalStake || (Number.isFinite(computed.totalUnits) ? computed.totalUnits.toFixed(2) : '—') },
+        { label: 'Bankroll', value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—' },
+        { label: 'BR Start', value: summary.topMetrics.brStart || '—' },
+        { label: 'Peak', value: summary.topMetrics.peak || (Number.isFinite(computed.peak) ? formatCurrency(computed.peak) : '—') },
+        { label: 'Drawdown', value: summary.topMetrics.drawdown || (Number.isFinite(computed.drawdown) ? formatCurrency(computed.drawdown) : '—'), cls: drawdownNumeric > 0 ? 'orange' : '' },
+        { label: 'ROB', value: summary.topMetrics.rob || '—' }
+      ];
+      document.getElementById('summaryMetrics').innerHTML = metrics.map(m => `
+        <div class="metric ${m.cls === 'small' ? 'small' : ''}">
+          <div class="metric-label">${m.label}</div>
+          <div class="metric-value ${['green','orange','red','blue'].includes(m.cls) ? m.cls : ''}">${m.value}</div>
         </div>
-
-        <div class="grid stats-grid">
-          <div class="card kpi accent-blue">
-            <div class="kpi-label">YTD Record</div>
-            <div class="kpi-value">${wins}-${losses}${pushes ? `-${pushes}` : ""}</div>
-            <div class="kpi-sub">Wins-Losses${pushes ? "-Pushes" : ""}</div>
-          </div>
-
-          <div class="card kpi accent-green">
-            <div class="kpi-label">Total Profit</div>
-            <div class="kpi-value">${fmtMoney(totalProfit)}</div>
-            <div class="kpi-sub">Season to date</div>
-          </div>
-
-          <div class="card kpi ${roi >= 0 ? "accent-blue" : "accent-orange"}">
-            <div class="kpi-label">ROI</div>
-            <div class="kpi-value">${fmtPct(roi)}</div>
-            <div class="kpi-sub">Based on graded wagers</div>
-          </div>
-
-          <div class="card kpi accent-orange">
-            <div class="kpi-label">Bankroll</div>
-            <div class="kpi-value">${fmtMoney(currentBalance)}</div>
-            <div class="kpi-sub">Peak ${fmtMoney(peak)} • DD ${fmtMoney(drawdown)}</div>
-          </div>
-        </div>
-
-        <div class="grid main-grid">
-          <div class="panel-section">
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Bankroll Trend</div>
-                <div class="status">${played.length} graded/posted games</div>
-              </div>
-              <div class="chart-wrap">
-                <canvas id="bankrollChart"></canvas>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Recent Games</div>
-                <div class="status">${history.length} scheduled</div>
-              </div>
-              <div class="card-body" style="padding-top:8px;">
-                <div style="overflow:auto;">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Opp</th>
-                        <th>Result</th>
-                        <th>Units</th>
-                        <th>Odds</th>
-                        <th>Profit</th>
-                        <th>Balance</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${history.slice(-12).reverse().map(r => `
-                        <tr>
-                          <td>${fmtDate(r.date)}</td>
-                          <td>${r.opponent || "—"}</td>
-                          <td><span class="badge ${resultBadgeClass(r.result)}">${r.result || "—"}</span></td>
-                          <td>${displayUnits(r.bravos)}</td>
-                          <td>${displayOdds(r.odds)}</td>
-                          <td class="${isNaN(r.profit) ? "muted" : r.profit > 0 ? "pos" : r.profit < 0 ? "neg" : "neutral"}">${isNaN(r.profit) ? "—" : fmtMoney(r.profit)}</td>
-                          <td>${isNaN(r.balance) ? "—" : fmtMoney(r.balance)}</td>
-                        </tr>
-                      `).join("")}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel-section">
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Momentum</div>
-              </div>
-              <div class="card-body">
-                <div class="form-grid">
-                  <div class="form-box">
-                    <h4>Current Streak</h4>
-                    <div class="form-big">${streaks.current}</div>
-                  </div>
-                  <div class="form-box">
-                    <h4>Longest Win Streak</h4>
-                    <div class="form-big">${streaks.longestWin}</div>
-                  </div>
-                  <div class="form-box">
-                    <h4>Longest Loss Streak</h4>
-                    <div class="form-big">${streaks.longestLoss}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Recent Form</div>
-              </div>
-              <div class="card-body">
-                <div class="form-grid">
-                  <div class="form-box">
-                    <h4>Last 5</h4>
-                    <div class="form-big">${last5.label}</div>
-                    <div class="${last5.profit > 0 ? "pos" : last5.profit < 0 ? "neg" : "muted"}" style="margin-top:8px;font-weight:700;">${fmtMoney(last5.profit)}</div>
-                  </div>
-                  <div class="form-box">
-                    <h4>Last 10</h4>
-                    <div class="form-big">${last10.label}</div>
-                    <div class="${last10.profit > 0 ? "pos" : last10.profit < 0 ? "neg" : "muted"}" style="margin-top:8px;font-weight:700;">${fmtMoney(last10.profit)}</div>
-                  </div>
-                  <div class="form-box">
-                    <h4>Last 20</h4>
-                    <div class="form-big">${last20.label}</div>
-                    <div class="${last20.profit > 0 ? "pos" : last20.profit < 0 ? "neg" : "muted"}" style="margin-top:8px;font-weight:700;">${fmtMoney(last20.profit)}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Historical ROI</div>
-              </div>
-              <div class="card-body" style="padding-top:8px;">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Year</th>
-                      <th>ROI</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${histRoi.map(r => `
-                      <tr>
-                        <td style="font-weight:800;">${r.year}</td>
-                        <td>${r.roi}</td>
-                      </tr>
-                    `).join("")}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      drawChart(history);
-
-      document.getElementById("lastUpdated").textContent =
-        `Last updated ${new Date().toLocaleString()}`;
+      `).join('');
     }
 
-    function drawChart(rows) {
-      const ctx = document.getElementById("bankrollChart");
-      if (!ctx) return;
+    function renderMomentum(computed) {
+      const cards = [
+        { name: 'Current Win Streak', value: computed.streaks.currentWin || 0, sub: computed.streaks.currentWin ? 'Wins in a row' : 'No active win streak' },
+        { name: 'Longest Win Streak', value: computed.streaks.longestWin || 0, sub: 'Season best' },
+        { name: 'Current Loss Streak', value: computed.streaks.currentLoss || 0, sub: computed.streaks.currentLoss ? 'Losses in a row' : 'No active losing streak' },
+        { name: 'Longest Loss Streak', value: computed.streaks.longestLoss || 0, sub: 'Season worst' },
+        { name: computed.last5.title, value: computed.last5.record, sub: `${computed.last5.profit >= 0 ? '+' : ''}${computed.last5.profit.toFixed(2)}u` },
+        { name: computed.last10.title, value: computed.last10.record, sub: `${computed.last10.profit >= 0 ? '+' : ''}${computed.last10.profit.toFixed(2)}u` },
+        { name: computed.last20.title, value: computed.last20.record, sub: `${computed.last20.profit >= 0 ? '+' : ''}${computed.last20.profit.toFixed(2)}u` }
+      ];
+      document.getElementById('momentumGrid').innerHTML = cards.map(c => `
+        <div class="stat-card">
+          <div class="stat-name">${c.name}</div>
+          <div class="stat-value">${c.value}</div>
+          <div class="stat-sub">${c.sub}</div>
+        </div>
+      `).join('');
+    }
 
-      const chartRows = rows.filter(r => r.date && !isNaN(r.balance));
-      const labels = chartRows.map(r => fmtDate(r.date));
-      const data = chartRows.map(r => r.balance);
-      const peakLine = [...data].map((_, idx) => Math.max(...data.slice(0, idx + 1)));
+    function renderROI(summary) {
+      const body = document.getElementById('roiTable');
+      if (!summary.historicalROI.length) {
+        body.innerHTML = '<tr><td colspan="2" class="muted">No Historical ROI rows found in Summary!I10:L19.</td></tr>';
+        return;
+      }
+      body.innerHTML = summary.historicalROI.map(r => `<tr><td>${r.year}</td><td>${r.roi}</td></tr>`).join('');
+    }
 
-      new Chart(ctx, {
-        type: "line",
+    function buildRecentRows(dataRows, today) {
+      const pastAndToday = dataRows.filter(r => r.date <= today);
+      const future = dataRows.filter(r => r.date > today);
+      const recentPast = pastAndToday.slice(-8);
+      const nearFuture = future.slice(0, Math.max(0, 12 - recentPast.length));
+      return [...recentPast, ...nearFuture];
+    }
+
+    function renderRecent(dataRows, today) {
+      const rows = buildRecentRows(dataRows, today);
+      document.getElementById('recentCountPill').textContent = `${rows.length} rows`;
+      const body = document.getElementById('recentTable');
+      body.innerHTML = rows.map(r => `
+        <tr>
+          <td>${dateLabel(r.date)}</td>
+          <td>${r.opp || '—'}</td>
+          <td>${getResultChip(r.result || '')}</td>
+          <td>${Number.isFinite(r.units) ? r.units.toFixed(2) : 'TBD'}</td>
+          <td>${r.odds || 'TBD'}</td>
+          <td>${Number.isFinite(r.profit) ? `${r.profit >= 0 ? '+' : ''}${r.profit.toFixed(2)}` : '—'}</td>
+          <td>${Number.isFinite(r.balance) ? formatCurrency(r.balance) : '—'}</td>
+        </tr>
+      `).join('');
+    }
+
+    let chart;
+    function renderChart(computed) {
+      const rows = computed.graded.filter(r => Number.isFinite(r.balance));
+      document.getElementById('gradedCountPill').textContent = `${rows.length} graded game${rows.length === 1 ? '' : 's'}`;
+      const ctx = document.getElementById('balanceChart').getContext('2d');
+      const labels = rows.map(r => dateLabel(r.date));
+      const balances = rows.map(r => r.balance);
+      const peaks = [];
+      let runningPeak = Number.NEGATIVE_INFINITY;
+      for (const v of balances) {
+        runningPeak = Math.max(runningPeak, v);
+        peaks.push(runningPeak);
+      }
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
         data: {
           labels,
           datasets: [
             {
-              label: "Balance",
-              data,
-              borderColor: "#6ea8ff",
-              backgroundColor: "rgba(110,168,255,.14)",
-              fill: true,
-              tension: 0.3,
+              label: 'Balance',
+              data: balances,
+              borderColor: '#5b8cff',
+              backgroundColor: 'rgba(91,140,255,.18)',
+              borderWidth: 3,
               pointRadius: 0,
               pointHoverRadius: 4,
-              borderWidth: 3
+              fill: true,
+              tension: .28
             },
             {
-              label: "Peak",
-              data: peakLine,
-              borderColor: "rgba(245,166,35,.7)",
-              borderDash: [6, 6],
+              label: 'Peak',
+              data: peaks,
+              borderColor: '#ffb454',
+              borderWidth: 2,
               pointRadius: 0,
-              tension: 0.2,
-              borderWidth: 2
+              fill: false,
+              borderDash: [6, 5],
+              tension: .28
             }
           ]
         },
@@ -914,22 +823,19 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: {
-              labels: { color: "#c7ccd6" }
+            legend: { labels: { color: '#c4cbe0' } },
+            tooltip: {
+              backgroundColor: '#161b24',
+              borderColor: '#2b3140',
+              borderWidth: 1,
+              titleColor: '#f5f7fb',
+              bodyColor: '#d8def0',
+              callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}` }
             }
           },
           scales: {
-            x: {
-              ticks: { color: "#a8afbd", maxTicksLimit: 8 },
-              grid: { display: false }
-            },
-            y: {
-              ticks: {
-                color: "#a8afbd",
-                callback: value => "$" + Number(value).toFixed(2)
-              },
-              grid: { color: "rgba(255,255,255,.07)" }
-            }
+            x: { ticks: { color: '#a8b1c7', maxTicksLimit: 8 }, grid: { display: false }, border: { color: '#2b3140' } },
+            y: { ticks: { color: '#a8b1c7', callback: (v) => formatCurrency(v) }, grid: { color: 'rgba(255,255,255,.07)' }, border: { color: '#2b3140' } }
           }
         }
       });
@@ -937,37 +843,33 @@
 
     async function init() {
       try {
-        const [dataCsv, summaryCsv] = await Promise.all([
-          fetch(DATA_URL).then(r => r.text()),
-          fetch(SUMMARY_URL).then(r => r.text())
-        ]);
+        const [summaryGrid, dataGrid] = await Promise.all([parseCSV(SUMMARY_URL, false), parseCSV(DATA_URL, false)]);
+        const summary = parseSummaryGrid(summaryGrid);
+        const dataRows = parseDataGrid(dataGrid);
+        const computed = deriveComputed(dataRows);
+        const now = new Date();
+        const today = normalizeDate(now);
+        const todaysRows = dataRows.filter(r => normalizeDate(r.date).getTime() === today.getTime());
+        const nextRows = dataRows.filter(r => r.date > today);
 
-        const rawRows = parseCSV(dataCsv).map(normalizeHeaderKey);
-        const summaryRows = parseCSV(summaryCsv);
+        renderTodayCard(todaysRows, nextRows);
+        renderSummary(summary, computed);
+        renderMomentum(computed);
+        renderROI(summary);
+        renderRecent(dataRows, today);
+        renderChart(computed);
 
-        const rows = rawRows.map(r => ({
-          date: parseSheetDate(r["game date"] || r["date"]),
-          opponent: r["opponent"] || "",
-          result: r["result"] || "",
-          bravos: num(r["bravos"] || r["units"] || r["unit"]),
-          odds: r["odds"] || "",
-          profit: num(r["profit"]),
-          balance: num(r["balance"])
-        })).filter(r => r.date);
-
-        buildApp(rows, summaryRows);
-      } catch (err) {
-        console.error(err);
-        document.getElementById("app").innerHTML = `
-          <div class="card">
-            <div class="empty-state">
-              Could not load the dashboard data. Double-check the published CSV links and GitHub Pages refresh.
-            </div>
-          </div>
-        `;
+        document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
+        document.getElementById('app').classList.remove('loading');
+      } catch (error) {
+        console.error(error);
+        document.getElementById('app').classList.remove('loading');
+        document.getElementById('todaySubtitle').textContent = 'CSV fetch failed';
+        document.getElementById('todayCountPill').textContent = 'error';
+        document.getElementById('todayBody').innerHTML = `<div class="empty-panel"><div style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">Data load error</div><div class="muted">Couldn’t read one of the published CSV feeds. Double-check the published links and that the repo is serving the latest index.html.</div></div>`;
+        document.getElementById('lastUpdated').textContent = 'Error loading data';
       }
     }
-
     init();
   </script>
 </body>
