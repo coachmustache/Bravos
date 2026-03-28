@@ -94,7 +94,7 @@
 
     .grid-top {
       display: grid;
-      grid-template-columns: 1.3fr 1fr;
+      grid-template-columns: 1.15fr 1fr;
       gap: 18px;
       margin-bottom: 18px;
     }
@@ -263,9 +263,9 @@
 
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
-      padding: 18px 20px 0;
+      padding: 18px 20px 20px;
     }
 
     .metric {
@@ -358,6 +358,9 @@
       font-size: .9rem;
     }
 
+    .stat-sub.green { color: var(--green); font-weight: 700; }
+    .stat-sub.red { color: var(--red); font-weight: 700; }
+
     .bottom-grid {
       display: grid;
       grid-template-columns: 1.45fr .95fr;
@@ -367,6 +370,14 @@
     .table-wrap {
       padding: 12px 20px 20px;
       overflow-x: auto;
+    }
+
+    .historical-wrap {
+      overflow-x: hidden;
+    }
+
+    .historical-wrap table {
+      min-width: 0;
     }
 
     table {
@@ -429,6 +440,9 @@
       color: var(--muted);
     }
 
+    td.green { color: var(--green); font-weight: 700; }
+    td.red { color: var(--red); font-weight: 700; }
+
     .footer-note {
       margin-top: 18px;
       color: var(--muted);
@@ -447,7 +461,7 @@
       }
 
       .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -566,14 +580,17 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <h2 class="card-title">Historical ROI</h2>
-            <div class="card-subtitle">Summary!I10:L19 block</div>
+            <h2 class="card-title">Historical Results</h2>
           </div>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap historical-wrap">
           <table>
             <thead>
-              <tr><th>Year</th><th>ROI</th></tr>
+              <tr>
+                <th>Year</th>
+                <th>ROI</th>
+                <th>Units</th>
+              </tr>
             </thead>
             <tbody id="roiTable"></tbody>
           </table>
@@ -720,16 +737,17 @@
         rob: safeText(getCell(grid, 7, 6))
       };
 
-      const historicalROI = [];
+      const historicalResults = [];
       for (let r = 10; r <= 19; r++) {
-        const year = safeText(getCell(grid, r, 9)) || safeText(getCell(grid, r, 10)) || safeText(getCell(grid, r, 11));
-        const roi = safeText(getCell(grid, r, 12)) || safeText(getCell(grid, r, 11)) || safeText(getCell(grid, r, 10));
-        if (!year && !roi) continue;
+        const year = safeText(getCell(grid, r, 9));
+        const roi = safeText(getCell(grid, r, 12));
+        const units = safeText(getCell(grid, r, 13));
+        if (!year && !roi && !units) continue;
         if (/^year$/i.test(year)) continue;
-        historicalROI.push({ year, roi });
+        historicalResults.push({ year, roi, units });
       }
 
-      return { topMetrics, historicalROI };
+      return { topMetrics, historicalResults };
     }
 
     function parseDataGrid(grid) {
@@ -896,83 +914,92 @@
       `;
     }
 
-  function renderSummary(summary, computed) {
-    const drawdownText = summary.topMetrics.drawdown || (Number.isFinite(computed.drawdown) ? formatCurrency(computed.drawdown) : '—');
-    const peakText = summary.topMetrics.peak || (Number.isFinite(computed.peak) ? formatCurrency(computed.peak) : '—');
+    function renderSummary(summary, computed) {
+      const drawdownText = summary.topMetrics.drawdown || (Number.isFinite(computed.drawdown) ? formatCurrency(computed.drawdown) : '—');
+      const peakText = summary.topMetrics.peak || (Number.isFinite(computed.peak) ? formatCurrency(computed.peak) : '—');
 
-    const metrics = [
-      {
-        label: 'YTD Record',
-        value: computed.record || '0-0',
-        sub: 'Wins-Losses-Pushes',
-        cls: 'blue'
-      },
-      {
-        label: 'Total Profit',
-        value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'),
-        sub: 'Season to date',
-        cls: Number.isFinite(computed.totalProfit)
-          ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '')
-          : ''
-      },
-      {
-        label: 'ROI',
-        value: summary.topMetrics.roi || '—',
-        sub: 'Based on graded wagers',
-        cls: 'blue'
-      },
-      {
-        label: 'Bankroll',
-        value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—',
-        sub: `Peak ${peakText} • DD ${drawdownText}`,
-        cls: 'orange'
-      }
-    ];
+      const metrics = [
+        {
+          label: 'YTD Record',
+          value: computed.record || '0-0',
+          sub: 'Wins-Losses-Pushes',
+          cls: 'blue'
+        },
+        {
+          label: 'Total Profit',
+          value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'),
+          sub: 'Season to date',
+          cls: Number.isFinite(computed.totalProfit)
+            ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '')
+            : ''
+        },
+        {
+          label: 'ROI',
+          value: summary.topMetrics.roi || '—',
+          sub: 'Based on graded wagers',
+          cls: 'blue'
+        },
+        {
+          label: 'Bankroll',
+          value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—',
+          sub: `Peak ${peakText} • DD ${drawdownText}`,
+          cls: 'orange'
+        }
+      ];
 
-    document.getElementById('summaryMetrics').innerHTML = metrics.map(m => `
-      <div class="metric">
-      <div class="metric-label">${m.label}</div>
-      <div class="metric-value ${m.cls}">${m.value}</div>
-      <div class="metric-sub">${m.sub}</div>
-    </div>
-  `).join('');
-}
+      document.getElementById('summaryMetrics').innerHTML = metrics.map(m => `
+        <div class="metric">
+          <div class="metric-label">${m.label}</div>
+          <div class="metric-value ${m.cls}">${m.value}</div>
+          <div class="metric-sub">${m.sub}</div>
+        </div>
+      `).join('');
+    }
 
     function renderMomentum(computed) {
       const currentStreakText = computed.streaks.currentType
         ? `${computed.streaks.currentType} ${computed.streaks.currentLength}`
         : 'No streak';
 
+      const profitClass = (n) => n > 0 ? 'green' : n < 0 ? 'red' : '';
+      const profitText = (n) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}u`;
+
       const cards = [
         {
           name: 'Current Streak',
           value: currentStreakText,
-          sub: computed.streaks.currentType ? 'Active streak' : 'No graded streak yet'
+          sub: computed.streaks.currentType ? 'Active streak' : 'No graded streak yet',
+          subClass: ''
         },
         {
           name: 'Longest Win Streak',
           value: computed.streaks.longestWin || 0,
-          sub: 'Season best'
+          sub: 'Season best',
+          subClass: ''
         },
         {
           name: 'Longest Loss Streak',
           value: computed.streaks.longestLoss || 0,
-          sub: 'Season worst'
+          sub: 'Season worst',
+          subClass: ''
         },
         {
           name: computed.last5.title,
           value: computed.last5.record,
-          sub: `${computed.last5.gamesInWindow} graded • ${computed.last5.profit >= 0 ? '+' : ''}${computed.last5.profit.toFixed(2)}u`
+          sub: profitText(computed.last5.profit),
+          subClass: profitClass(computed.last5.profit)
         },
         {
           name: computed.last10.title,
           value: computed.last10.record,
-          sub: `${computed.last10.gamesInWindow} graded • ${computed.last10.profit >= 0 ? '+' : ''}${computed.last10.profit.toFixed(2)}u`
+          sub: profitText(computed.last10.profit),
+          subClass: profitClass(computed.last10.profit)
         },
         {
           name: computed.last20.title,
           value: computed.last20.record,
-          sub: `${computed.last20.gamesInWindow} graded • ${computed.last20.profit >= 0 ? '+' : ''}${computed.last20.profit.toFixed(2)}u`
+          sub: profitText(computed.last20.profit),
+          subClass: profitClass(computed.last20.profit)
         }
       ];
 
@@ -980,24 +1007,33 @@
         <div class="stat-card">
           <div class="stat-name">${c.name}</div>
           <div class="stat-value">${c.value}</div>
-          <div class="stat-sub">${c.sub}</div>
+          <div class="stat-sub ${c.subClass || ''}">${c.sub}</div>
         </div>
       `).join('');
     }
 
     function renderROI(summary) {
       const body = document.getElementById('roiTable');
-      if (!summary.historicalROI.length) {
-        body.innerHTML = '<tr><td colspan="2">No Historical ROI rows found in Summary!I10:L19.</td></tr>';
+
+      if (!summary.historicalResults || !summary.historicalResults.length) {
+        body.innerHTML = '<tr><td colspan="3">No Historical Results rows found in Summary.</td></tr>';
         return;
       }
 
-      body.innerHTML = summary.historicalROI.map(r => `
-        <tr>
-          <td>${r.year}</td>
-          <td>${r.roi}</td>
-        </tr>
-      `).join('');
+      body.innerHTML = summary.historicalResults.map(r => {
+        const unitsNum = parseNumeric(r.units);
+        const unitsClass = Number.isFinite(unitsNum)
+          ? (unitsNum > 0 ? 'green' : unitsNum < 0 ? 'red' : '')
+          : '';
+
+        return `
+          <tr>
+            <td>${r.year}</td>
+            <td>${r.roi || '—'}</td>
+            <td class="${unitsClass}">${r.units || '—'}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function buildRecentRows(dataRows, today) {
