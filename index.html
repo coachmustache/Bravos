@@ -294,6 +294,12 @@
       margin-top: 8px;
     }
 
+    .metric-sub {
+      color: var(--muted);
+      font-size: .82rem;
+      margin-top: 8px;
+    }
+
     .metric-value.green { color: var(--green); }
     .metric-value.red { color: var(--red); }
     .metric-value.orange { color: var(--orange); }
@@ -873,7 +879,6 @@
       const losses = graded.filter(r => r.result === 'Loss').length;
       const pushes = graded.filter(r => r.result === 'Push').length;
       const totalProfit = graded.reduce((sum, r) => sum + (Number.isFinite(r.profit) ? r.profit : 0), 0);
-      const totalUnits = graded.reduce((sum, r) => sum + (Number.isFinite(r.units) ? r.units : 0), 0);
       const balances = graded.filter(r => Number.isFinite(r.balance));
       const currentBalance = balances.length ? balances[balances.length - 1].balance : NaN;
 
@@ -897,7 +902,6 @@
         graded,
         record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`,
         totalProfit,
-        totalUnits,
         currentBalance,
         peak: Number.isFinite(peak) ? peak : NaN,
         drawdown,
@@ -989,17 +993,8 @@
         {
           label: 'Bankroll',
           value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—',
-          cls: 'orange'
-        },
-        {
-          label: 'Peak',
-          value: peakText,
-          cls: ''
-        },
-        {
-          label: 'Drawdown',
-          value: drawdownText,
-          cls: ''
+          cls: 'orange',
+          sub: `Peak ${peakText} • DD ${drawdownText}`
         },
         {
           label: 'Avg CLV',
@@ -1021,6 +1016,7 @@
         <div class="metric">
           <div class="metric-label">${m.label}</div>
           <div class="metric-value ${m.cls}">${m.value}</div>
+          ${m.sub ? `<div class="metric-sub">${m.sub}</div>` : ''}
         </div>
       `).join('');
     }
