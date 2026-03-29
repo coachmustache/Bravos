@@ -29,9 +29,7 @@
       --shadow: 0 10px 30px rgba(0,0,0,.35);
       --radius: 22px;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -42,453 +40,85 @@
         linear-gradient(180deg, #12151d 0%, #0d1016 100%);
       min-height: 100vh;
     }
-
-    .wrap {
-      max-width: 1380px;
-      margin: 0 auto;
-      padding: 28px 18px 48px;
-    }
-
-    .hero {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 18px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .title-block h1 {
-      margin: 0;
-      font-size: clamp(2rem, 5vw, 3.35rem);
-      letter-spacing: .03em;
-      font-weight: 800;
-    }
-
-    .title-block p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: .98rem;
-    }
-
-    .status-pill {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-size: .92rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: var(--shadow);
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: var(--green);
-      box-shadow: 0 0 12px rgba(54,211,153,.7);
-    }
-
-    .grid-top {
-      display: grid;
-      grid-template-columns: 1.15fr 1fr;
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 18px 20px 0;
-    }
-
-    .card-title {
-      margin: 0;
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: .02em;
-    }
-
-    .card-subtitle {
-      color: var(--muted);
-      font-size: .88rem;
-      margin-top: 6px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.08);
-      width: fit-content;
-      color: var(--muted);
-      background: rgba(0,0,0,.14);
-      font-size: .84rem;
-    }
-
+    .wrap { max-width: 1380px; margin: 0 auto; padding: 28px 18px 48px; }
+    .hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; margin-bottom: 20px; flex-wrap: wrap; }
+    .title-block h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.35rem); letter-spacing: .03em; font-weight: 800; }
+    .title-block p { margin: 8px 0 0; color: var(--muted); font-size: .98rem; }
+    .status-pill { border: 1px solid var(--line); background: rgba(255,255,255,.03); color: var(--muted); padding: 10px 14px; border-radius: 999px; font-size: .92rem; display: inline-flex; align-items: center; gap: 10px; box-shadow: var(--shadow); }
+    .status-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--green); box-shadow: 0 0 12px rgba(54,211,153,.7); }
+    .grid-top { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; margin-bottom: 18px; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 18px 20px 0; }
+    .card-title { margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: .02em; }
+    .card-subtitle { color: var(--muted); font-size: .88rem; margin-top: 6px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); width: fit-content; color: var(--muted); background: rgba(0,0,0,.14); font-size: .84rem; }
     .today-card-body { padding: 16px 20px 20px; }
-
-    .today-games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 14px;
-    }
-
-    .game-tile {
-      padding: 18px;
-      border: 1px solid var(--line-soft);
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(91,140,255,.12), rgba(91,140,255,.03));
-      min-height: 210px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: transform .15s ease, box-shadow .15s ease;
-    }
-
-    .game-tile:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(0,0,0,.28);
-    }
-
-    .game-tile.win {
-      border: 2px solid var(--green);
-      box-shadow: 0 0 14px rgba(54,211,153,.28);
-    }
-
-    .game-tile.loss {
-      border: 2px solid var(--red);
-      box-shadow: 0 0 14px rgba(255,107,122,.24);
-    }
-
-    .game-tile.push {
-      border: 2px solid var(--orange);
-      box-shadow: 0 0 10px rgba(255,180,84,.18);
-    }
-
-    .game-tile.pending {
-      border: 1px solid var(--line-soft);
-    }
-
-    .opp-logo {
-      width: 48px;
-      height: 48px;
-      object-fit: contain;
-      margin-bottom: 10px;
-    }
-
-    .opp-name {
-      font-size: 1.3rem;
-      font-weight: 800;
-      letter-spacing: .02em;
-    }
-
-    .game-date {
-      color: var(--muted);
-      margin-top: 4px;
-      font-size: .92rem;
-    }
-
-    .units-big {
-      font-size: 1.9rem;
-      font-weight: 800;
-      line-height: 1;
-      margin: 14px 0 10px;
-    }
-
-    .game-meta {
-      display: grid;
-      gap: 6px;
-      color: var(--muted);
-      font-size: .95rem;
-    }
-
-    .result-badge {
-      margin-top: 12px;
-      width: fit-content;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: .85rem;
-      font-weight: 700;
-      letter-spacing: .02em;
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.04);
-    }
-
-    .result-badge.win {
-      color: var(--green);
-      border-color: rgba(54,211,153,.35);
-      background: rgba(54,211,153,.10);
-    }
-
-    .result-badge.loss {
-      color: var(--red);
-      border-color: rgba(255,107,122,.35);
-      background: rgba(255,107,122,.10);
-    }
-
-    .result-badge.push {
-      color: var(--orange);
-      border-color: rgba(255,180,84,.35);
-      background: rgba(255,180,84,.10);
-    }
-
-    .result-badge.pending {
-      color: var(--muted);
-    }
-
-    .empty-panel {
-      padding: 16px 0 8px;
-      color: var(--muted);
-    }
-
-    .summary-card {
-      padding-bottom: 20px;
-    }
-
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      padding: 18px 20px 20px;
-    }
-
-    .metric {
-      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
-      border: 1px solid var(--line-soft);
-      border-radius: 18px;
-      padding: 16px;
-      min-height: 102px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .metric-label {
-      font-size: .78rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-weight: 700;
-    }
-
-    .metric-value {
-      font-size: 2rem;
-      font-weight: 800;
-      line-height: 1;
-      margin-top: 8px;
-    }
-
-    .metric-sub {
-      color: var(--muted);
-      font-size: .82rem;
-      margin-top: 8px;
-    }
-
+    .today-games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .game-tile { padding: 18px; border: 1px solid var(--line-soft); border-radius: 18px; background: linear-gradient(180deg, rgba(91,140,255,.12), rgba(91,140,255,.03)); min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; transition: transform .15s ease, box-shadow .15s ease; }
+    .game-tile:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.28); }
+    .game-tile.win { border: 2px solid var(--green); box-shadow: 0 0 14px rgba(54,211,153,.28); }
+    .game-tile.loss { border: 2px solid var(--red); box-shadow: 0 0 14px rgba(255,107,122,.24); }
+    .game-tile.push { border: 2px solid var(--orange); box-shadow: 0 0 10px rgba(255,180,84,.18); }
+    .game-tile.pending { border: 1px solid var(--line-soft); }
+    .opp-logo { width: 48px; height: 48px; object-fit: contain; margin-bottom: 10px; }
+    .opp-name { font-size: 1.3rem; font-weight: 800; letter-spacing: .02em; }
+    .game-date { color: var(--muted); margin-top: 4px; font-size: .92rem; }
+    .units-big { font-size: 1.9rem; font-weight: 800; line-height: 1; margin: 14px 0 10px; }
+    .game-meta { display: grid; gap: 6px; color: var(--muted); font-size: .95rem; }
+    .result-badge { margin-top: 12px; width: fit-content; padding: 8px 12px; border-radius: 999px; font-size: .85rem; font-weight: 700; letter-spacing: .02em; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04); }
+    .result-badge.win { color: var(--green); border-color: rgba(54,211,153,.35); background: rgba(54,211,153,.10); }
+    .result-badge.loss { color: var(--red); border-color: rgba(255,107,122,.35); background: rgba(255,107,122,.10); }
+    .result-badge.push { color: var(--orange); border-color: rgba(255,180,84,.35); background: rgba(255,180,84,.10); }
+    .result-badge.pending { color: var(--muted); }
+    .empty-panel { padding: 16px 0 8px; color: var(--muted); }
+    .summary-card { padding-bottom: 20px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 18px 20px 20px; }
+    .metric { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border: 1px solid var(--line-soft); border-radius: 18px; padding: 16px; min-height: 102px; display: flex; flex-direction: column; justify-content: space-between; }
+    .metric-label { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+    .metric-value { font-size: 2rem; font-weight: 800; line-height: 1; margin-top: 8px; }
+    .metric-sub { color: var(--muted); font-size: .82rem; margin-top: 8px; }
     .metric-value.green { color: var(--green); }
     .metric-value.red { color: var(--red); }
     .metric-value.orange { color: var(--orange); }
     .metric-value.blue { color: var(--blue); }
-
-    .section-grid {
-      display: grid;
-      grid-template-columns: 1.4fr .9fr;
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-
-    .chart-area {
-      padding: 14px 20px 20px;
-      height: 330px;
-    }
-
-    .chart-wrap {
-      position: relative;
-      height: 100%;
-      width: 100%;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      padding: 18px 20px 20px;
-    }
-
-    .stat-card {
-      border: 1px solid var(--line-soft);
-      border-radius: 18px;
-      padding: 16px;
-      min-height: 118px;
-      background: rgba(255,255,255,.02);
-    }
-
-    .stat-name {
-      font-size: .75rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .stat-value {
-      font-size: 1.9rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-      line-height: 1.05;
-    }
-
-    .stat-sub {
-      color: var(--muted);
-      font-size: .9rem;
-    }
-
+    .section-grid { display: grid; grid-template-columns: 1.4fr .9fr; gap: 18px; margin-bottom: 18px; }
+    .chart-area { padding: 14px 20px 20px; height: 330px; }
+    .chart-wrap { position: relative; height: 100%; width: 100%; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 18px 20px 20px; }
+    .stat-card { border: 1px solid var(--line-soft); border-radius: 18px; padding: 16px; min-height: 118px; background: rgba(255,255,255,.02); }
+    .stat-name { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; margin-bottom: 12px; }
+    .stat-value { font-size: 1.9rem; font-weight: 800; margin-bottom: 8px; line-height: 1.05; }
+    .stat-sub { color: var(--muted); font-size: .9rem; }
     .stat-sub.green { color: var(--green); font-weight: 700; }
     .stat-sub.red { color: var(--red); font-weight: 700; }
-
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1.45fr .95fr;
-      gap: 18px;
-    }
-
-    .table-wrap {
-      padding: 12px 20px 20px;
-      overflow-x: auto;
-    }
-
-    .historical-wrap {
-      overflow-x: hidden;
-    }
-
-    .historical-wrap table {
-      min-width: 0;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 540px;
-    }
-
-    th, td {
-      padding: 12px 10px;
-      text-align: left;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      font-size: .95rem;
-    }
-
-    th {
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-size: .74rem;
-    }
-
-    tr:hover td {
-      background: rgba(255,255,255,.02);
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 58px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: .78rem;
-      font-weight: 700;
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-    }
-
-    .chip.win {
-      color: var(--green);
-      background: rgba(54,211,153,.10);
-      border-color: rgba(54,211,153,.26);
-    }
-
-    .chip.loss {
-      color: var(--red);
-      background: rgba(255,107,122,.10);
-      border-color: rgba(255,107,122,.26);
-    }
-
-    .chip.push {
-      color: var(--orange);
-      background: rgba(255,180,84,.10);
-      border-color: rgba(255,180,84,.26);
-    }
-
-    .chip.ppd {
-      color: var(--muted);
-    }
-
+    .bottom-grid { display: grid; grid-template-columns: 1.45fr .95fr; gap: 18px; }
+    .table-wrap { padding: 12px 20px 20px; overflow-x: auto; }
+    .historical-wrap { overflow-x: hidden; }
+    .historical-wrap table { min-width: 0; }
+    table { width: 100%; border-collapse: collapse; min-width: 540px; }
+    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .95rem; }
+    th { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: .74rem; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .chip { display: inline-flex; align-items: center; justify-content: center; min-width: 58px; padding: 6px 10px; border-radius: 999px; font-size: .78rem; font-weight: 700; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); color: var(--muted); }
+    .chip.win { color: var(--green); background: rgba(54,211,153,.10); border-color: rgba(54,211,153,.26); }
+    .chip.loss { color: var(--red); background: rgba(255,107,122,.10); border-color: rgba(255,107,122,.26); }
+    .chip.push { color: var(--orange); background: rgba(255,180,84,.10); border-color: rgba(255,180,84,.26); }
+    .chip.ppd { color: var(--muted); }
     td.green, .clv-green { color: var(--green); font-weight: 700; }
     td.red, .clv-red { color: var(--red); font-weight: 700; }
     .clv-neutral { color: var(--muted); }
-
-    .footer-note {
-      margin-top: 18px;
-      color: var(--muted);
-      font-size: .88rem;
-    }
-
-    .loading {
-      opacity: .85;
-    }
-
+    .footer-note { margin-top: 18px; color: var(--muted); font-size: .88rem; }
+    .loading { opacity: .85; }
     @media (max-width: 1100px) {
-      .grid-top,
-      .section-grid,
-      .bottom-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .metrics-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+      .grid-top, .section-grid, .bottom-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
-
     @media (max-width: 720px) {
-      .wrap {
-        padding: 18px 14px 34px;
-      }
-
-      .metrics-grid,
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .today-games-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .chart-area {
-        height: 280px;
-      }
-
-      .metric-value,
-      .stat-value {
-        font-size: 1.6rem;
-      }
+      .wrap { padding: 18px 14px 34px; }
+      .metrics-grid, .stats-grid { grid-template-columns: 1fr; }
+      .today-games-grid { grid-template-columns: 1fr; }
+      .chart-area { height: 280px; }
+      .metric-value, .stat-value { font-size: 1.6rem; }
     }
   </style>
 </head>
@@ -519,9 +149,7 @@
 
       <div class="card summary-card">
         <div class="card-header">
-          <div>
-            <h2 class="card-title">Season Snapshot</h2>
-          </div>
+          <div><h2 class="card-title">Season Snapshot</h2></div>
         </div>
         <div class="metrics-grid" id="summaryMetrics"></div>
       </div>
@@ -530,22 +158,14 @@
     <section class="section-grid">
       <div class="card">
         <div class="card-header">
-          <div>
-            <h2 class="card-title">Bankroll Trend</h2>
-          </div>
+          <div><h2 class="card-title">Bankroll Trend</h2></div>
           <div class="pill" id="gradedCountPill">0 graded games</div>
         </div>
-        <div class="chart-area">
-          <div class="chart-wrap"><canvas id="balanceChart"></canvas></div>
-        </div>
+        <div class="chart-area"><div class="chart-wrap"><canvas id="balanceChart"></canvas></div></div>
       </div>
 
       <div class="card">
-        <div class="card-header">
-          <div>
-            <h2 class="card-title">Momentum</h2>
-          </div>
-        </div>
+        <div class="card-header"><div><h2 class="card-title">Momentum</h2></div></div>
         <div class="stats-grid" id="momentumGrid"></div>
       </div>
     </section>
@@ -553,23 +173,13 @@
     <section class="bottom-grid">
       <div class="card">
         <div class="card-header">
-          <div>
-            <h2 class="card-title">Recent Games</h2>
-          </div>
+          <div><h2 class="card-title">Recent Games</h2></div>
           <div class="pill" id="recentCountPill">0 rows</div>
         </div>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Date</th>
-                <th>Opp</th>
-                <th>Result</th>
-                <th>Units</th>
-                <th>Odds</th>
-                <th>Profit</th>
-                <th>CLV</th>
-              </tr>
+              <tr><th>Date</th><th>Opp</th><th>Result</th><th>Units</th><th>Odds</th><th>Profit</th><th>CLV</th></tr>
             </thead>
             <tbody id="recentTable"></tbody>
           </table>
@@ -577,20 +187,10 @@
       </div>
 
       <div class="card">
-        <div class="card-header">
-          <div>
-            <h2 class="card-title">Historical Results</h2>
-          </div>
-        </div>
+        <div class="card-header"><div><h2 class="card-title">Historical Results</h2></div></div>
         <div class="table-wrap historical-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>Year</th>
-                <th>ROI</th>
-                <th>Units</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Year</th><th>ROI</th><th>Units</th></tr></thead>
             <tbody id="roiTable"></tbody>
           </table>
         </div>
@@ -601,10 +201,38 @@
   </div>
 
   <script>
-
     const SUMMARY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=338106424&single=true&output=csv';
     const DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=1101765880&single=true&output=csv';
-    
+
+    const TEAM_LOGOS = {
+      ATL: 'https://a.espncdn.com/i/teamlogos/mlb/500/atl.png', ARI: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png',
+      AZ: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png', ATH: 'https://a.espncdn.com/i/teamlogos/mlb/500/oak.png',
+      BOS: 'https://a.espncdn.com/i/teamlogos/mlb/500/bos.png', CHC: 'https://a.espncdn.com/i/teamlogos/mlb/500/chc.png',
+      CIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/cin.png', CLE: 'https://a.espncdn.com/i/teamlogos/mlb/500/cle.png',
+      COL: 'https://a.espncdn.com/i/teamlogos/mlb/500/col.png', DET: 'https://a.espncdn.com/i/teamlogos/mlb/500/det.png',
+      HOU: 'https://a.espncdn.com/i/teamlogos/mlb/500/hou.png', KC: 'https://a.espncdn.com/i/teamlogos/mlb/500/kc.png',
+      LAA: 'https://a.espncdn.com/i/teamlogos/mlb/500/laa.png', LAD: 'https://a.espncdn.com/i/teamlogos/mlb/500/lad.png',
+      MIA: 'https://a.espncdn.com/i/teamlogos/mlb/500/mia.png', MIL: 'https://a.espncdn.com/i/teamlogos/mlb/500/mil.png',
+      MIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/min.png', NYM: 'https://a.espncdn.com/i/teamlogos/mlb/500/nym.png',
+      NYY: 'https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png', PHI: 'https://a.espncdn.com/i/teamlogos/mlb/500/phi.png',
+      PIT: 'https://a.espncdn.com/i/teamlogos/mlb/500/pit.png', SD: 'https://a.espncdn.com/i/teamlogos/mlb/500/sd.png',
+      SEA: 'https://a.espncdn.com/i/teamlogos/mlb/500/sea.png', SF: 'https://a.espncdn.com/i/teamlogos/mlb/500/sf.png',
+      STL: 'https://a.espncdn.com/i/teamlogos/mlb/500/stl.png', TB: 'https://a.espncdn.com/i/teamlogos/mlb/500/tb.png',
+      TEX: 'https://a.espncdn.com/i/teamlogos/mlb/500/tex.png', TOR: 'https://a.espncdn.com/i/teamlogos/mlb/500/tor.png',
+      WSH: 'https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png'
+    };
+
+    const TEAM_NAMES = {
+      ATL: 'Atlanta Braves', ARI: 'Arizona Diamondbacks', AZ: 'Arizona Diamondbacks', ATH: 'Athletics',
+      BOS: 'Boston Red Sox', CHC: 'Chicago Cubs', CIN: 'Cincinnati Reds', CLE: 'Cleveland Guardians',
+      COL: 'Colorado Rockies', DET: 'Detroit Tigers', HOU: 'Houston Astros', KC: 'Kansas City Royals',
+      LAA: 'Los Angeles Angels', LAD: 'Los Angeles Dodgers', MIA: 'Miami Marlins', MIL: 'Milwaukee Brewers',
+      MIN: 'Minnesota Twins', NYM: 'New York Mets', NYY: 'New York Yankees', PHI: 'Philadelphia Phillies',
+      PIT: 'Pittsburgh Pirates', SD: 'San Diego Padres', SEA: 'Seattle Mariners', SF: 'San Francisco Giants',
+      STL: 'St. Louis Cardinals', TB: 'Tampa Bay Rays', TEX: 'Texas Rangers', TOR: 'Toronto Blue Jays',
+      WSH: 'Washington Nationals'
+    };
+
     function parseCSV(url) {
       return new Promise((resolve, reject) => {
         Papa.parse(url, { download: true, skipEmptyLines: false, complete: (results) => resolve(results.data || []), error: reject });
@@ -644,6 +272,7 @@
       return `<span class="chip ${cls}">${r || '—'}</span>`;
     }
     function clvClass(value) { if (!Number.isFinite(value)) return 'clv-neutral'; if (value > 0) return 'clv-green'; if (value < 0) return 'clv-red'; return 'clv-neutral'; }
+
     function parseSummaryGrid(grid) {
       const topMetrics = {
         bravoSize: safeText(getCell(grid, 4, 3)),
@@ -666,22 +295,15 @@
       }
       return { topMetrics, historicalResults };
     }
+
     function parseDataGrid(grid) {
       const rows = [];
       for (let i = 1; i < grid.length; i++) {
         const row = grid[i] || [];
         rows.push({
-          rowNumber: i + 1,
-          date: parseSheetDate(row[0]),
-          opp: safeText(row[1]),
-          result: safeText(row[2]),
-          units: parseNumeric(row[3]),
-          odds: safeText(row[5]),
-          profit: parseNumeric(row[7]),
-          balance: parseNumeric(row[8]),
-          spreadBet: safeText(row[9]).toUpperCase() === 'TRUE',
-          closingLine: parseNumeric(row[10]),
-          clv: parseNumeric(row[11])
+          rowNumber: i + 1, date: parseSheetDate(row[0]), opp: safeText(row[1]), result: safeText(row[2]),
+          units: parseNumeric(row[3]), odds: safeText(row[5]), profit: parseNumeric(row[7]), balance: parseNumeric(row[8]),
+          spreadBet: safeText(row[9]).toUpperCase() === 'TRUE', closingLine: parseNumeric(row[10]), clv: parseNumeric(row[11])
         });
       }
       return rows.filter(r => r.date instanceof Date && !Number.isNaN(r.date.getTime())).sort((a, b) => {
@@ -689,12 +311,12 @@
         return diff !== 0 ? diff : a.rowNumber - b.rowNumber;
       });
     }
+
     function computeStreaks(gradedRows) {
       let currentType = '', currentLength = 0, longestWin = 0, longestLoss = 0;
       for (const row of gradedRows) {
         if (!['Win', 'Loss'].includes(row.result)) continue;
-        if (row.result === currentType) currentLength += 1;
-        else { currentType = row.result; currentLength = 1; }
+        if (row.result === currentType) currentLength += 1; else { currentType = row.result; currentLength = 1; }
         if (row.result === 'Win') longestWin = Math.max(longestWin, currentLength);
         if (row.result === 'Loss') longestLoss = Math.max(longestLoss, currentLength);
       }
@@ -707,6 +329,7 @@
       }
       return { currentType: tailType, currentLength: tailLength, currentWin: tailType === 'Win' ? tailLength : 0, currentLoss: tailType === 'Loss' ? tailLength : 0, longestWin, longestLoss };
     }
+
     function buildWindowStats(gradedRows, n) {
       const slice = gradedRows.slice(-n);
       const wins = slice.filter(r => r.result === 'Win').length;
@@ -715,6 +338,7 @@
       const profit = slice.reduce((sum, r) => sum + (Number.isFinite(r.profit) ? r.profit : 0), 0);
       return { title: `Last ${n}`, record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`, profit };
     }
+
     function deriveComputed(dataRows) {
       const graded = dataRows.filter(r => isGraded(r.result));
       const wins = graded.filter(r => r.result === 'Win').length;
@@ -730,6 +354,7 @@
       const beatClosePct = clvRows.length ? clvRows.filter(r => r.clv > 0).length / clvRows.length : NaN;
       return { graded, record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`, totalProfit, currentBalance, peak: Number.isFinite(peak) ? peak : NaN, drawdown, avgClv, beatClosePct, streaks: computeStreaks(graded), last5: buildWindowStats(graded, 5), last10: buildWindowStats(graded, 10), last20: buildWindowStats(graded, 20) };
     }
+
     function renderTodayCard(todayRows) {
       const subtitle = document.getElementById('todaySubtitle');
       const pill = document.getElementById('todayCountPill');
@@ -751,6 +376,7 @@
         return `<div class="game-tile ${cls}"><div>${logo ? `<img class="opp-logo" src="${logo}" alt="${r.opp} logo" onerror="this.style.display='none'">` : ''}<div class="opp-name">${TEAM_NAMES[r.opp] || r.opp || 'TBD'}</div><div class="game-date">${dateLabel(r.date)}</div></div><div><div class="units-big">${formatUnits(r.units)}</div><div class="game-meta"><div>${r.spreadBet ? 'Run Line' : 'Moneyline'}</div><div>Odds: ${r.odds || 'TBD'}</div></div><div class="result-badge ${cls}">${r.result || 'Pending'}</div></div></div>`;
       }).join('')}</div>`;
     }
+
     function renderSummary(summary, computed) {
       const drawdownText = summary.topMetrics.drawdown || (Number.isFinite(computed.drawdown) ? formatUnits(computed.drawdown) : '—');
       const peakText = summary.topMetrics.peak || (Number.isFinite(computed.peak) ? formatUnits(computed.peak) : '—');
@@ -764,6 +390,7 @@
       ];
       document.getElementById('summaryMetrics').innerHTML = metrics.map(m => `<div class="metric"><div class="metric-label">${m.label}</div><div class="metric-value ${m.cls}">${m.value}</div>${m.sub ? `<div class="metric-sub">${m.sub}</div>` : ''}</div>`).join('');
     }
+
     function renderMomentum(computed) {
       const currentStreakText = computed.streaks.currentType ? `${computed.streaks.currentType} ${computed.streaks.currentLength}` : 'No streak';
       const profitClass = (n) => n > 0 ? 'green' : n < 0 ? 'red' : '';
@@ -778,6 +405,7 @@
       ];
       document.getElementById('momentumGrid').innerHTML = cards.map(c => `<div class="stat-card"><div class="stat-name">${c.name}</div><div class="stat-value">${c.value}</div><div class="stat-sub ${c.subClass || ''}">${c.sub}</div></div>`).join('');
     }
+
     function renderROI(summary) {
       const body = document.getElementById('roiTable');
       if (!summary.historicalResults || !summary.historicalResults.length) {
@@ -789,6 +417,7 @@
         return `<tr><td>${r.year}</td><td>${r.roi || '—'}</td><td class="${unitsClass}">${r.units || '—'}</td></tr>`;
       }).join('');
     }
+
     function buildRecentRows(dataRows, today) {
       const pastAndToday = dataRows.filter(r => r.date && r.date.getTime() <= today.getTime());
       const future = dataRows.filter(r => r.date && r.date.getTime() > today.getTime());
@@ -796,12 +425,14 @@
       const nearFuture = future.slice(0, Math.max(0, 12 - recentPast.length));
       return [...recentPast, ...nearFuture];
     }
+
     function renderRecent(dataRows, today) {
       const rows = buildRecentRows(dataRows, today);
       document.getElementById('recentCountPill').textContent = `${rows.length} rows`;
       const body = document.getElementById('recentTable');
       body.innerHTML = rows.map(r => `<tr><td>${dateLabel(r.date)}</td><td>${r.opp || '—'}</td><td>${getResultChip(r.result || '')}</td><td>${Number.isFinite(r.units) ? r.units.toFixed(2) : 'TBD'}</td><td>${r.odds || 'TBD'}</td><td>${Number.isFinite(r.profit) ? `${r.profit >= 0 ? '+' : ''}${r.profit.toFixed(2)}` : '—'}</td><td class="${clvClass(r.clv)}">${Number.isFinite(r.clv) ? formatPercentDecimal(r.clv, 2) : '—'}</td></tr>`).join('');
     }
+
     let chart;
     function renderChart(computed) {
       const rows = computed.graded.filter(r => Number.isFinite(r.balance));
@@ -818,13 +449,10 @@
       if (chart) chart.destroy();
       chart = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: chartLabels,
-          datasets: [
-            { label: 'Balance', data: chartBalances, borderColor: '#5b8cff', backgroundColor: 'rgba(91,140,255,.18)', borderWidth: 3, pointRadius: singlePoint ? 4 : 0, pointHoverRadius: 5, fill: true, tension: .28 },
-            { label: 'Peak', data: chartPeaks, borderColor: '#ffb454', borderWidth: 2, pointRadius: singlePoint ? 4 : 0, fill: false, borderDash: [6, 5], tension: .28 }
-          ]
-        },
+        data: { labels: chartLabels, datasets: [
+          { label: 'Balance', data: chartBalances, borderColor: '#5b8cff', backgroundColor: 'rgba(91,140,255,.18)', borderWidth: 3, pointRadius: singlePoint ? 4 : 0, pointHoverRadius: 5, fill: true, tension: .28 },
+          { label: 'Peak', data: chartPeaks, borderColor: '#ffb454', borderWidth: 2, pointRadius: singlePoint ? 4 : 0, fill: false, borderDash: [6, 5], tension: .28 }
+        ]},
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { labels: { color: '#c4cbe0' } }, tooltip: { backgroundColor: '#161b24', borderColor: '#2b3140', borderWidth: 1, titleColor: '#f5f7fb', bodyColor: '#d8def0', callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${formatUnits(ctx.parsed.y)}` } } },
@@ -835,6 +463,7 @@
         }
       });
     }
+
     async function init() {
       try {
         const [summaryGrid, dataGrid] = await Promise.all([parseCSV(SUMMARY_URL), parseCSV(DATA_URL)]);
@@ -860,8 +489,6 @@
       }
     }
     init();
-
-
   </script>
 </body>
 </html>
