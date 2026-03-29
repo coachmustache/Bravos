@@ -601,174 +601,49 @@
   </div>
 
   <script>
+
     const SUMMARY_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=338106424&single=true&output=csv';
     const DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPZNjA3Ln-4Pb7hyxHfdV2kMsEUPbO8KX4yXGyCHVJDdO7K1e8kdhM67lu-vAnJ_bS21Rq_CEjApPN/pub?gid=1101765880&single=true&output=csv';
-
-    const TEAM_LOGOS = {
-      ATL: 'https://a.espncdn.com/i/teamlogos/mlb/500/atl.png',
-      ARI: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png',
-      AZ: 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png',
-      ATH: 'https://a.espncdn.com/i/teamlogos/mlb/500/oak.png',
-      BOS: 'https://a.espncdn.com/i/teamlogos/mlb/500/bos.png',
-      CHC: 'https://a.espncdn.com/i/teamlogos/mlb/500/chc.png',
-      CIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/cin.png',
-      CLE: 'https://a.espncdn.com/i/teamlogos/mlb/500/cle.png',
-      COL: 'https://a.espncdn.com/i/teamlogos/mlb/500/col.png',
-      DET: 'https://a.espncdn.com/i/teamlogos/mlb/500/det.png',
-      HOU: 'https://a.espncdn.com/i/teamlogos/mlb/500/hou.png',
-      KC: 'https://a.espncdn.com/i/teamlogos/mlb/500/kc.png',
-      LAA: 'https://a.espncdn.com/i/teamlogos/mlb/500/laa.png',
-      LAD: 'https://a.espncdn.com/i/teamlogos/mlb/500/lad.png',
-      MIA: 'https://a.espncdn.com/i/teamlogos/mlb/500/mia.png',
-      MIL: 'https://a.espncdn.com/i/teamlogos/mlb/500/mil.png',
-      MIN: 'https://a.espncdn.com/i/teamlogos/mlb/500/min.png',
-      NYM: 'https://a.espncdn.com/i/teamlogos/mlb/500/nym.png',
-      NYY: 'https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png',
-      PHI: 'https://a.espncdn.com/i/teamlogos/mlb/500/phi.png',
-      PIT: 'https://a.espncdn.com/i/teamlogos/mlb/500/pit.png',
-      SD: 'https://a.espncdn.com/i/teamlogos/mlb/500/sd.png',
-      SEA: 'https://a.espncdn.com/i/teamlogos/mlb/500/sea.png',
-      SF: 'https://a.espncdn.com/i/teamlogos/mlb/500/sf.png',
-      STL: 'https://a.espncdn.com/i/teamlogos/mlb/500/stl.png',
-      TB: 'https://a.espncdn.com/i/teamlogos/mlb/500/tb.png',
-      TEX: 'https://a.espncdn.com/i/teamlogos/mlb/500/tex.png',
-      TOR: 'https://a.espncdn.com/i/teamlogos/mlb/500/tor.png',
-      WSH: 'https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png'
-    };
-
-    const TEAM_NAMES = {
-      ATL: 'Atlanta Braves',
-      ARI: 'Arizona Diamondbacks',
-      AZ: 'Arizona Diamondbacks',
-      ATH: 'Athletics',
-      BOS: 'Boston Red Sox',
-      CHC: 'Chicago Cubs',
-      CIN: 'Cincinnati Reds',
-      CLE: 'Cleveland Guardians',
-      COL: 'Colorado Rockies',
-      DET: 'Detroit Tigers',
-      HOU: 'Houston Astros',
-      KC: 'Kansas City Royals',
-      LAA: 'Los Angeles Angels',
-      LAD: 'Los Angeles Dodgers',
-      MIA: 'Miami Marlins',
-      MIL: 'Milwaukee Brewers',
-      MIN: 'Minnesota Twins',
-      NYM: 'New York Mets',
-      NYY: 'New York Yankees',
-      PHI: 'Philadelphia Phillies',
-      PIT: 'Pittsburgh Pirates',
-      SD: 'San Diego Padres',
-      SEA: 'Seattle Mariners',
-      SF: 'San Francisco Giants',
-      STL: 'St. Louis Cardinals',
-      TB: 'Tampa Bay Rays',
-      TEX: 'Texas Rangers',
-      TOR: 'Toronto Blue Jays',
-      WSH: 'Washington Nationals'
-    };
-
+    
     function parseCSV(url) {
       return new Promise((resolve, reject) => {
-        Papa.parse(url, {
-          download: true,
-          skipEmptyLines: false,
-          complete: (results) => resolve(results.data || []),
-          error: reject
-        });
+        Papa.parse(url, { download: true, skipEmptyLines: false, complete: (results) => resolve(results.data || []), error: reject });
       });
     }
-
-    function safeText(v) {
-      return (v ?? '').toString().trim();
-    }
-
-    function getCell(grid, row, col) {
-      return (grid[row - 1] && grid[row - 1][col - 1]) || '';
-    }
-
-    function normalizeDate(date) {
-      const d = new Date(date);
-      if (Number.isNaN(d.getTime())) return null;
-      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    }
-
+    function safeText(v) { return (v ?? '').toString().trim(); }
+    function getCell(grid, row, col) { return (grid[row - 1] && grid[row - 1][col - 1]) || ''; }
+    function normalizeDate(date) { const d = new Date(date); if (Number.isNaN(d.getTime())) return null; return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
     function parseSheetDate(value) {
       const txt = safeText(value);
       if (!txt) return null;
-
       const shortMatch = txt.match(/^([A-Za-z]{3})-(\d{1,2})$/);
       if (shortMatch) {
         const [, monTxt, dayTxt] = shortMatch;
-        const months = {
-          Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-          Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-        };
+        const months = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11 };
         const month = months[monTxt];
         const day = Number(dayTxt);
-        if (Number.isInteger(month) && Number.isInteger(day)) {
-          return new Date(2026, month, day);
-        }
+        if (Number.isInteger(month) && Number.isInteger(day)) return new Date(2026, month, day);
       }
-
       const direct = new Date(txt);
-      if (!Number.isNaN(direct.getTime())) {
-        return new Date(direct.getFullYear(), direct.getMonth(), direct.getDate());
-      }
-
+      if (!Number.isNaN(direct.getTime())) return new Date(direct.getFullYear(), direct.getMonth(), direct.getDate());
       return null;
     }
-
     function parseNumeric(value) {
-      const txt = safeText(value)
-        .replace(/\$/g, '')
-        .replace(/,/g, '')
-        .replace(/u$/i, '')
-        .replace(/%/g, '')
-        .trim();
-
+      const txt = safeText(value).replace(/\$/g,'').replace(/,/g,'').replace(/u$/i,'').replace(/%/g,'').trim();
       if (!txt || txt === '-' || txt === '—') return NaN;
       const n = Number(txt);
       return Number.isFinite(n) ? n : NaN;
     }
-
-    function formatCurrency(value) {
-      if (!Number.isFinite(value)) return '—';
-      return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-    }
-
-    function formatUnits(value) {
-      if (!Number.isFinite(value)) return 'TBD';
-      return `${value.toFixed(2)}u`;
-    }
-
-    function formatPercentDecimal(value, digits = 2) {
-      if (!Number.isFinite(value)) return '—';
-      return `${(value * 100).toFixed(digits)}%`;
-    }
-
-    function dateLabel(date) {
-      if (!date) return '—';
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
-
-    function isGraded(result) {
-      return ['Win', 'Loss', 'Push'].includes(result);
-    }
-
+    function formatUnits(value) { if (!Number.isFinite(value)) return '—'; return `${value.toFixed(2)}u`; }
+    function formatPercentDecimal(value, digits = 2) { if (!Number.isFinite(value)) return '—'; return `${(value * 100).toFixed(digits)}%`; }
+    function dateLabel(date) { if (!date) return '—'; return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+    function isGraded(result) { return ['Win', 'Loss', 'Push'].includes(result); }
     function getResultChip(result) {
       const r = safeText(result);
       const cls = r === 'Win' ? 'win' : r === 'Loss' ? 'loss' : r === 'Push' ? 'push' : r === 'PPD' ? 'ppd' : '';
       return `<span class="chip ${cls}">${r || '—'}</span>`;
     }
-
-    function clvClass(value) {
-      if (!Number.isFinite(value)) return 'clv-neutral';
-      if (value > 0) return 'clv-green';
-      if (value < 0) return 'clv-red';
-      return 'clv-neutral';
-    }
-
+    function clvClass(value) { if (!Number.isFinite(value)) return 'clv-neutral'; if (value > 0) return 'clv-green'; if (value < 0) return 'clv-red'; return 'clv-neutral'; }
     function parseSummaryGrid(grid) {
       const topMetrics = {
         bravoSize: safeText(getCell(grid, 4, 3)),
@@ -780,7 +655,6 @@
         drawdown: safeText(getCell(grid, 6, 6)),
         rob: safeText(getCell(grid, 7, 6))
       };
-
       const historicalResults = [];
       for (let r = 10; r <= 19; r++) {
         const year = safeText(getCell(grid, r, 9));
@@ -790,16 +664,12 @@
         if (/^year$/i.test(year)) continue;
         historicalResults.push({ year, roi, units });
       }
-
       return { topMetrics, historicalResults };
     }
-
     function parseDataGrid(grid) {
       const rows = [];
-
       for (let i = 1; i < grid.length; i++) {
         const row = grid[i] || [];
-
         rows.push({
           rowNumber: i + 1,
           date: parseSheetDate(row[0]),
@@ -809,70 +679,42 @@
           odds: safeText(row[5]),
           profit: parseNumeric(row[7]),
           balance: parseNumeric(row[8]),
+          spreadBet: safeText(row[9]).toUpperCase() === 'TRUE',
           closingLine: parseNumeric(row[10]),
           clv: parseNumeric(row[11])
         });
       }
-
-      return rows
-        .filter(r => r.date instanceof Date && !Number.isNaN(r.date.getTime()))
-        .sort((a, b) => {
-          const diff = a.date.getTime() - b.date.getTime();
-          return diff !== 0 ? diff : a.rowNumber - b.rowNumber;
-        });
+      return rows.filter(r => r.date instanceof Date && !Number.isNaN(r.date.getTime())).sort((a, b) => {
+        const diff = a.date.getTime() - b.date.getTime();
+        return diff !== 0 ? diff : a.rowNumber - b.rowNumber;
+      });
     }
-
     function computeStreaks(gradedRows) {
-      let currentType = '';
-      let currentLength = 0;
-      let longestWin = 0;
-      let longestLoss = 0;
-
+      let currentType = '', currentLength = 0, longestWin = 0, longestLoss = 0;
       for (const row of gradedRows) {
         if (!['Win', 'Loss'].includes(row.result)) continue;
         if (row.result === currentType) currentLength += 1;
-        else {
-          currentType = row.result;
-          currentLength = 1;
-        }
+        else { currentType = row.result; currentLength = 1; }
         if (row.result === 'Win') longestWin = Math.max(longestWin, currentLength);
         if (row.result === 'Loss') longestLoss = Math.max(longestLoss, currentLength);
       }
-
-      let tailType = '';
-      let tailLength = 0;
+      let tailType = '', tailLength = 0;
       for (let i = gradedRows.length - 1; i >= 0; i--) {
         const res = gradedRows[i].result;
         if (!['Win', 'Loss'].includes(res)) continue;
         if (!tailType) tailType = res;
-        if (res === tailType) tailLength += 1;
-        else break;
+        if (res === tailType) tailLength += 1; else break;
       }
-
-      return {
-        currentType: tailType,
-        currentLength: tailLength,
-        currentWin: tailType === 'Win' ? tailLength : 0,
-        currentLoss: tailType === 'Loss' ? tailLength : 0,
-        longestWin,
-        longestLoss
-      };
+      return { currentType: tailType, currentLength: tailLength, currentWin: tailType === 'Win' ? tailLength : 0, currentLoss: tailType === 'Loss' ? tailLength : 0, longestWin, longestLoss };
     }
-
     function buildWindowStats(gradedRows, n) {
       const slice = gradedRows.slice(-n);
       const wins = slice.filter(r => r.result === 'Win').length;
       const losses = slice.filter(r => r.result === 'Loss').length;
       const pushes = slice.filter(r => r.result === 'Push').length;
       const profit = slice.reduce((sum, r) => sum + (Number.isFinite(r.profit) ? r.profit : 0), 0);
-
-      return {
-        title: `Last ${n}`,
-        record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`,
-        profit
-      };
+      return { title: `Last ${n}`, record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`, profit };
     }
-
     function deriveComputed(dataRows) {
       const graded = dataRows.filter(r => isGraded(r.result));
       const wins = graded.filter(r => r.result === 'Win').length;
@@ -881,226 +723,72 @@
       const totalProfit = graded.reduce((sum, r) => sum + (Number.isFinite(r.profit) ? r.profit : 0), 0);
       const balances = graded.filter(r => Number.isFinite(r.balance));
       const currentBalance = balances.length ? balances[balances.length - 1].balance : NaN;
-
-      let peak = Number.NEGATIVE_INFINITY;
-      let drawdown = 0;
-      for (const row of balances) {
-        peak = Math.max(peak, row.balance);
-        drawdown = Math.max(drawdown, peak - row.balance);
-      }
-
+      let peak = Number.NEGATIVE_INFINITY, drawdown = 0;
+      for (const row of balances) { peak = Math.max(peak, row.balance); drawdown = Math.max(drawdown, peak - row.balance); }
       const clvRows = graded.filter(r => Number.isFinite(r.clv));
-      const avgClv = clvRows.length
-        ? clvRows.reduce((sum, r) => sum + r.clv, 0) / clvRows.length
-        : NaN;
-
-      const beatClosePct = clvRows.length
-        ? clvRows.filter(r => r.clv > 0).length / clvRows.length
-        : NaN;
-
-      return {
-        graded,
-        record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`,
-        totalProfit,
-        currentBalance,
-        peak: Number.isFinite(peak) ? peak : NaN,
-        drawdown,
-        avgClv,
-        beatClosePct,
-        streaks: computeStreaks(graded),
-        last5: buildWindowStats(graded, 5),
-        last10: buildWindowStats(graded, 10),
-        last20: buildWindowStats(graded, 20)
-      };
+      const avgClv = clvRows.length ? clvRows.reduce((sum, r) => sum + r.clv, 0) / clvRows.length : NaN;
+      const beatClosePct = clvRows.length ? clvRows.filter(r => r.clv > 0).length / clvRows.length : NaN;
+      return { graded, record: `${wins}-${losses}${pushes ? `-${pushes}` : ''}`, totalProfit, currentBalance, peak: Number.isFinite(peak) ? peak : NaN, drawdown, avgClv, beatClosePct, streaks: computeStreaks(graded), last5: buildWindowStats(graded, 5), last10: buildWindowStats(graded, 10), last20: buildWindowStats(graded, 20) };
     }
-
     function renderTodayCard(todayRows) {
       const subtitle = document.getElementById('todaySubtitle');
       const pill = document.getElementById('todayCountPill');
       const body = document.getElementById('todayBody');
-
       if (!todayRows.length) {
         subtitle.textContent = 'No Braves wager card for today yet';
         pill.textContent = 'No games today';
-        body.innerHTML = `
-          <div class="empty-panel">
-            <div style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">No game today</div>
-            <div>Check back when today’s slate is posted.</div>
-          </div>
-        `;
+        body.innerHTML = `<div class="empty-panel"><div style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">No game today</div><div>Check back when today’s slate is posted.</div></div>`;
         return;
       }
-
       subtitle.textContent = `${todayRows.length} game${todayRows.length === 1 ? '' : 's'} today`;
       pill.textContent = `Today’s slate`;
-
-      body.innerHTML = `
-        <div class="today-games-grid">
-          ${todayRows.map(r => {
-            let cls = 'pending';
-            if (r.result === 'Win') cls = 'win';
-            if (r.result === 'Loss') cls = 'loss';
-            if (r.result === 'Push') cls = 'push';
-
-            const badgeCls = cls;
-            const badgeText = r.result || 'Pending';
-            const logo = TEAM_LOGOS[r.opp] || '';
-
-            return `
-              <div class="game-tile ${cls}">
-                <div>
-                  ${logo ? `<img class="opp-logo" src="${logo}" alt="${r.opp} logo" onerror="this.style.display='none'">` : ''}
-                  <div class="opp-name">${TEAM_NAMES[r.opp] || r.opp || 'TBD'}</div>
-                  <div class="game-date">${dateLabel(r.date)}</div>
-                </div>
-
-                <div>
-                  <div class="units-big">${formatUnits(r.units)}</div>
-                  <div class="game-meta">
-                    <div>Odds: ${r.odds || 'TBD'}</div>
-                  </div>
-                  <div class="result-badge ${badgeCls}">${badgeText}</div>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      `;
+      body.innerHTML = `<div class="today-games-grid">${todayRows.map(r => {
+        let cls = 'pending';
+        if (r.result === 'Win') cls = 'win';
+        if (r.result === 'Loss') cls = 'loss';
+        if (r.result === 'Push') cls = 'push';
+        const logo = TEAM_LOGOS[r.opp] || '';
+        return `<div class="game-tile ${cls}"><div>${logo ? `<img class="opp-logo" src="${logo}" alt="${r.opp} logo" onerror="this.style.display='none'">` : ''}<div class="opp-name">${TEAM_NAMES[r.opp] || r.opp || 'TBD'}</div><div class="game-date">${dateLabel(r.date)}</div></div><div><div class="units-big">${formatUnits(r.units)}</div><div class="game-meta"><div>${r.spreadBet ? 'Run Line' : 'Moneyline'}</div><div>Odds: ${r.odds || 'TBD'}</div></div><div class="result-badge ${cls}">${r.result || 'Pending'}</div></div></div>`;
+      }).join('')}</div>`;
     }
-
     function renderSummary(summary, computed) {
-      const drawdownText = summary.topMetrics.drawdown || (Number.isFinite(computed.drawdown) ? formatCurrency(computed.drawdown) : '—');
-      const peakText = summary.topMetrics.peak || (Number.isFinite(computed.peak) ? formatCurrency(computed.peak) : '—');
-
+      const drawdownText = summary.topMetrics.drawdown || (Number.isFinite(computed.drawdown) ? formatUnits(computed.drawdown) : '—');
+      const peakText = summary.topMetrics.peak || (Number.isFinite(computed.peak) ? formatUnits(computed.peak) : '—');
       const metrics = [
-        {
-          label: 'Season Record',
-          value: computed.record || '0-0',
-          cls: 'blue'
-        },
-        {
-          label: 'Profit',
-          value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'),
-          cls: Number.isFinite(computed.totalProfit)
-            ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '')
-            : ''
-        },
-        {
-          label: 'ROI',
-          value: summary.topMetrics.roi || '—',
-          cls: 'blue'
-        },
-        {
-          label: 'Bankroll',
-          value: Number.isFinite(computed.currentBalance) ? formatCurrency(computed.currentBalance) : '—',
-          cls: 'orange',
-          sub: `Peak ${peakText} • Drawdown ${drawdownText}`
-        },
-        {
-          label: 'Avg CLV',
-          value: formatPercentDecimal(computed.avgClv, 2),
-          cls: Number.isFinite(computed.avgClv)
-            ? (computed.avgClv > 0 ? 'green' : computed.avgClv < 0 ? 'red' : '')
-            : ''
-        },
-        {
-          label: 'Beat Close %',
-          value: formatPercentDecimal(computed.beatClosePct, 1),
-          cls: Number.isFinite(computed.beatClosePct)
-            ? (computed.beatClosePct >= 0.5 ? 'green' : 'red')
-            : ''
-        }
+        { label: 'YTD Record', value: computed.record || '0-0', cls: 'blue' },
+        { label: 'Total Profit', value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'), cls: Number.isFinite(computed.totalProfit) ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '') : '' },
+        { label: 'ROI', value: summary.topMetrics.roi || '—', cls: 'blue' },
+        { label: 'Bankroll', value: formatUnits(computed.currentBalance), cls: 'orange', sub: `Peak ${peakText} • DD ${drawdownText}` },
+        { label: 'Avg CLV', value: formatPercentDecimal(computed.avgClv, 2), cls: Number.isFinite(computed.avgClv) ? (computed.avgClv > 0 ? 'green' : computed.avgClv < 0 ? 'red' : '') : '' },
+        { label: 'Beat Close %', value: formatPercentDecimal(computed.beatClosePct, 1), cls: Number.isFinite(computed.beatClosePct) ? (computed.beatClosePct >= 0.5 ? 'green' : 'red') : '' }
       ];
-
-      document.getElementById('summaryMetrics').innerHTML = metrics.map(m => `
-        <div class="metric">
-          <div class="metric-label">${m.label}</div>
-          <div class="metric-value ${m.cls}">${m.value}</div>
-          ${m.sub ? `<div class="metric-sub">${m.sub}</div>` : ''}
-        </div>
-      `).join('');
+      document.getElementById('summaryMetrics').innerHTML = metrics.map(m => `<div class="metric"><div class="metric-label">${m.label}</div><div class="metric-value ${m.cls}">${m.value}</div>${m.sub ? `<div class="metric-sub">${m.sub}</div>` : ''}</div>`).join('');
     }
-
     function renderMomentum(computed) {
-      const currentStreakText = computed.streaks.currentType
-        ? `${computed.streaks.currentType} ${computed.streaks.currentLength}`
-        : 'No streak';
-
+      const currentStreakText = computed.streaks.currentType ? `${computed.streaks.currentType} ${computed.streaks.currentLength}` : 'No streak';
       const profitClass = (n) => n > 0 ? 'green' : n < 0 ? 'red' : '';
       const profitText = (n) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}u`;
-
       const cards = [
-        {
-          name: 'Current Streak',
-          value: currentStreakText,
-          sub: computed.streaks.currentType ? 'Active streak' : 'No graded streak yet',
-          subClass: ''
-        },
-        {
-          name: 'Longest Win Streak',
-          value: computed.streaks.longestWin || 0,
-          sub: 'Season best',
-          subClass: ''
-        },
-        {
-          name: 'Longest Loss Streak',
-          value: computed.streaks.longestLoss || 0,
-          sub: 'Season worst',
-          subClass: ''
-        },
-        {
-          name: computed.last5.title,
-          value: computed.last5.record,
-          sub: profitText(computed.last5.profit),
-          subClass: profitClass(computed.last5.profit)
-        },
-        {
-          name: computed.last10.title,
-          value: computed.last10.record,
-          sub: profitText(computed.last10.profit),
-          subClass: profitClass(computed.last10.profit)
-        },
-        {
-          name: computed.last20.title,
-          value: computed.last20.record,
-          sub: profitText(computed.last20.profit),
-          subClass: profitClass(computed.last20.profit)
-        }
+        { name: 'Current Streak', value: currentStreakText, sub: computed.streaks.currentType ? 'Active streak' : 'No graded streak yet', subClass: '' },
+        { name: 'Longest Win Streak', value: computed.streaks.longestWin || 0, sub: 'Season best', subClass: '' },
+        { name: 'Longest Loss Streak', value: computed.streaks.longestLoss || 0, sub: 'Season worst', subClass: '' },
+        { name: computed.last5.title, value: computed.last5.record, sub: profitText(computed.last5.profit), subClass: profitClass(computed.last5.profit) },
+        { name: computed.last10.title, value: computed.last10.record, sub: profitText(computed.last10.profit), subClass: profitClass(computed.last10.profit) },
+        { name: computed.last20.title, value: computed.last20.record, sub: profitText(computed.last20.profit), subClass: profitClass(computed.last20.profit) }
       ];
-
-      document.getElementById('momentumGrid').innerHTML = cards.map(c => `
-        <div class="stat-card">
-          <div class="stat-name">${c.name}</div>
-          <div class="stat-value">${c.value}</div>
-          <div class="stat-sub ${c.subClass || ''}">${c.sub}</div>
-        </div>
-      `).join('');
+      document.getElementById('momentumGrid').innerHTML = cards.map(c => `<div class="stat-card"><div class="stat-name">${c.name}</div><div class="stat-value">${c.value}</div><div class="stat-sub ${c.subClass || ''}">${c.sub}</div></div>`).join('');
     }
-
     function renderROI(summary) {
       const body = document.getElementById('roiTable');
-
       if (!summary.historicalResults || !summary.historicalResults.length) {
-        body.innerHTML = '<tr><td colspan="3">No Historical Results rows found in Summary.</td></tr>';
-        return;
+        body.innerHTML = '<tr><td colspan="3">No Historical Results rows found in Summary.</td></tr>'; return;
       }
-
       body.innerHTML = summary.historicalResults.map(r => {
         const unitsNum = parseNumeric(r.units);
-        const unitsClass = Number.isFinite(unitsNum)
-          ? (unitsNum > 0 ? 'green' : unitsNum < 0 ? 'red' : '')
-          : '';
-
-        return `
-          <tr>
-            <td>${r.year}</td>
-            <td>${r.roi || '—'}</td>
-            <td class="${unitsClass}">${r.units || '—'}</td>
-          </tr>
-        `;
+        const unitsClass = Number.isFinite(unitsNum) ? (unitsNum > 0 ? 'green' : unitsNum < 0 ? 'red' : '') : '';
+        return `<tr><td>${r.year}</td><td>${r.roi || '—'}</td><td class="${unitsClass}">${r.units || '—'}</td></tr>`;
       }).join('');
     }
-
     function buildRecentRows(dataRows, today) {
       const pastAndToday = dataRows.filter(r => r.date && r.date.getTime() <= today.getTime());
       const future = dataRows.filter(r => r.date && r.date.getTime() > today.getTime());
@@ -1108,168 +796,72 @@
       const nearFuture = future.slice(0, Math.max(0, 12 - recentPast.length));
       return [...recentPast, ...nearFuture];
     }
-
     function renderRecent(dataRows, today) {
       const rows = buildRecentRows(dataRows, today);
       document.getElementById('recentCountPill').textContent = `${rows.length} rows`;
-
       const body = document.getElementById('recentTable');
-      body.innerHTML = rows.map(r => `
-        <tr>
-          <td>${dateLabel(r.date)}</td>
-          <td>${r.opp || '—'}</td>
-          <td>${getResultChip(r.result || '')}</td>
-          <td>${Number.isFinite(r.units) ? r.units.toFixed(2) : 'TBD'}</td>
-          <td>${r.odds || 'TBD'}</td>
-          <td>${Number.isFinite(r.profit) ? `${r.profit >= 0 ? '+' : ''}${r.profit.toFixed(2)}` : '—'}</td>
-          <td class="${clvClass(r.clv)}">${Number.isFinite(r.clv) ? formatPercentDecimal(r.clv, 2) : '—'}</td>
-        </tr>
-      `).join('');
+      body.innerHTML = rows.map(r => `<tr><td>${dateLabel(r.date)}</td><td>${r.opp || '—'}</td><td>${getResultChip(r.result || '')}</td><td>${Number.isFinite(r.units) ? r.units.toFixed(2) : 'TBD'}</td><td>${r.odds || 'TBD'}</td><td>${Number.isFinite(r.profit) ? `${r.profit >= 0 ? '+' : ''}${r.profit.toFixed(2)}` : '—'}</td><td class="${clvClass(r.clv)}">${Number.isFinite(r.clv) ? formatPercentDecimal(r.clv, 2) : '—'}</td></tr>`).join('');
     }
-
     let chart;
-
     function renderChart(computed) {
       const rows = computed.graded.filter(r => Number.isFinite(r.balance));
       document.getElementById('gradedCountPill').textContent = `${rows.length} graded games`;
-
       const ctx = document.getElementById('balanceChart').getContext('2d');
-
       let labels = rows.map(r => dateLabel(r.date));
       let balances = rows.map(r => r.balance);
-
       const peaks = [];
       let runningPeak = Number.NEGATIVE_INFINITY;
-      for (const v of balances) {
-        runningPeak = Math.max(runningPeak, v);
-        peaks.push(runningPeak);
-      }
-
+      for (const v of balances) { runningPeak = Math.max(runningPeak, v); peaks.push(runningPeak); }
       const singlePoint = balances.length === 1;
-      let chartBalances = balances.slice();
-      let chartPeaks = peaks.slice();
-      let chartLabels = labels.slice();
-
-      if (singlePoint) {
-        chartLabels = [labels[0], labels[0]];
-        chartBalances = [balances[0], balances[0]];
-        chartPeaks.splice(0, chartPeaks.length, peaks[0], peaks[0]);
-      }
-
+      let chartBalances = balances.slice(), chartPeaks = peaks.slice(), chartLabels = labels.slice();
+      if (singlePoint) { chartLabels = [labels[0], labels[0]]; chartBalances = [balances[0], balances[0]]; chartPeaks.splice(0, chartPeaks.length, peaks[0], peaks[0]); }
       if (chart) chart.destroy();
-
       chart = new Chart(ctx, {
         type: 'line',
         data: {
           labels: chartLabels,
           datasets: [
-            {
-              label: 'Balance',
-              data: chartBalances,
-              borderColor: '#5b8cff',
-              backgroundColor: 'rgba(91,140,255,.18)',
-              borderWidth: 3,
-              pointRadius: singlePoint ? 4 : 0,
-              pointHoverRadius: 5,
-              fill: true,
-              tension: .28
-            },
-            {
-              label: 'Peak',
-              data: chartPeaks,
-              borderColor: '#ffb454',
-              borderWidth: 2,
-              pointRadius: singlePoint ? 4 : 0,
-              fill: false,
-              borderDash: [6, 5],
-              tension: .28
-            }
+            { label: 'Balance', data: chartBalances, borderColor: '#5b8cff', backgroundColor: 'rgba(91,140,255,.18)', borderWidth: 3, pointRadius: singlePoint ? 4 : 0, pointHoverRadius: 5, fill: true, tension: .28 },
+            { label: 'Peak', data: chartPeaks, borderColor: '#ffb454', borderWidth: 2, pointRadius: singlePoint ? 4 : 0, fill: false, borderDash: [6, 5], tension: .28 }
           ]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: { color: '#c4cbe0' }
-            },
-            tooltip: {
-              backgroundColor: '#161b24',
-              borderColor: '#2b3140',
-              borderWidth: 1,
-              titleColor: '#f5f7fb',
-              bodyColor: '#d8def0',
-              callbacks: {
-                label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`
-              }
-            }
-          },
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#c4cbe0' } }, tooltip: { backgroundColor: '#161b24', borderColor: '#2b3140', borderWidth: 1, titleColor: '#f5f7fb', bodyColor: '#d8def0', callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${formatUnits(ctx.parsed.y)}` } } },
           scales: {
-            x: {
-              ticks: {
-                color: '#a8b1c7',
-                maxTicksLimit: 8,
-                callback: function(value, index) {
-                  if (singlePoint && index > 0) return '';
-                  return this.getLabelForValue(value);
-                }
-              },
-              grid: { display: false },
-              border: { color: '#2b3140' }
-            },
-            y: {
-              ticks: {
-                color: '#a8b1c7',
-                callback: (v) => formatCurrency(v)
-              },
-              grid: { color: 'rgba(255,255,255,.07)' },
-              border: { color: '#2b3140' }
-            }
+            x: { ticks: { color: '#a8b1c7', maxTicksLimit: 8, callback: function(value, index) { if (singlePoint && index > 0) return ''; return this.getLabelForValue(value); } }, grid: { display: false }, border: { color: '#2b3140' } },
+            y: { ticks: { color: '#a8b1c7', callback: (v) => formatUnits(v) }, grid: { color: 'rgba(255,255,255,.07)' }, border: { color: '#2b3140' } }
           }
         }
       });
     }
-
     async function init() {
       try {
-        const [summaryGrid, dataGrid] = await Promise.all([
-          parseCSV(SUMMARY_URL),
-          parseCSV(DATA_URL)
-        ]);
-
+        const [summaryGrid, dataGrid] = await Promise.all([parseCSV(SUMMARY_URL), parseCSV(DATA_URL)]);
         const summary = parseSummaryGrid(summaryGrid);
         const dataRows = parseDataGrid(dataGrid);
         const computed = deriveComputed(dataRows);
-
         const today = normalizeDate(new Date());
         const todaysRows = dataRows.filter(r => r.date && today && r.date.getTime() === today.getTime());
-
         renderTodayCard(todaysRows);
         renderSummary(summary, computed);
         renderMomentum(computed);
         renderROI(summary);
         renderRecent(dataRows, today);
         renderChart(computed);
-
-        document.getElementById('lastUpdated').textContent =
-          `Updated ${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
-
+        document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
         document.getElementById('app').classList.remove('loading');
       } catch (error) {
         console.error(error);
         document.getElementById('app').classList.remove('loading');
         document.getElementById('todaySubtitle').textContent = 'CSV fetch failed';
         document.getElementById('todayCountPill').textContent = 'Error';
-        document.getElementById('todayBody').innerHTML = `
-          <div class="empty-panel">
-            <div style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">Data load error</div>
-            <div>Couldn’t read one of the published CSV feeds. Double-check the published links and make sure GitHub Pages is serving the latest file.</div>
-          </div>
-        `;
+        document.getElementById('todayBody').innerHTML = `<div class="empty-panel"><div style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">Data load error</div><div>Couldn’t read one of the published CSV feeds. Double-check the published links and make sure GitHub Pages is serving the latest file.</div></div>`;
       }
     }
-
     init();
+
+
   </script>
 </body>
 </html>
