@@ -384,7 +384,7 @@
         { label: 'YTD Record', value: computed.record || '0-0', cls: 'blue' },
         { label: 'Total Profit', value: summary.topMetrics.totalProfit || (Number.isFinite(computed.totalProfit) ? `${computed.totalProfit >= 0 ? '+' : ''}${computed.totalProfit.toFixed(2)}u` : '—'), cls: Number.isFinite(computed.totalProfit) ? (computed.totalProfit > 0 ? 'green' : computed.totalProfit < 0 ? 'red' : '') : '' },
         { label: 'ROI', value: summary.topMetrics.roi || '—', cls: 'blue' },
-        { label: 'Bankroll', value: formatUnits(computed.currentBalance), cls: 'orange', sub: `Peak ${peakText} • DD ${drawdownText}` },
+        { label: 'Bankroll', value: formatUnits(computed.currentBalance), cls: 'orange', sub: `Peak ${peakText} • Drawdown ${drawdownText}` },
         { label: 'Avg CLV', value: formatPercentDecimal(computed.avgClv, 2), cls: Number.isFinite(computed.avgClv) ? (computed.avgClv > 0 ? 'green' : computed.avgClv < 0 ? 'red' : '') : '' },
         { label: 'Beat Close %', value: formatPercentDecimal(computed.beatClosePct, 1), cls: Number.isFinite(computed.beatClosePct) ? (computed.beatClosePct >= 0.5 ? 'green' : 'red') : '' }
       ];
